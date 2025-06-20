@@ -25,10 +25,10 @@ export class TemplatePlatform extends MatterbridgeDynamicPlatform {
     if (
       this.verifyMatterbridgeVersion === undefined ||
       typeof this.verifyMatterbridgeVersion !== 'function' ||
-      !this.verifyMatterbridgeVersion('3.0.0')
+      !this.verifyMatterbridgeVersion('3.0.7')
     ) {
       throw new Error(
-        `This plugin requires Matterbridge version >= "3.0.0". Please update Matterbridge from ${this.matterbridge.matterbridgeVersion} to the latest version in the frontend."`,
+        `This plugin requires Matterbridge version >= "3.0.7". Please update Matterbridge from ${this.matterbridge.matterbridgeVersion} to the latest version in the frontend."`,
       );
     }
 
