@@ -1,4 +1,4 @@
-import { Matterbridge, MatterbridgeDynamicPlatform, MatterbridgeEndpoint, onOffOutlet, PlatformConfig } from 'matterbridge';
+import { Matterbridge, MatterbridgeDynamicPlatform, MatterbridgeEndpoint, onOffOutlet, PlatformConfig, RoboticVacuumCleaner } from 'matterbridge';
 import { AnsiLogger, LogLevel } from 'matterbridge/logger';
 
 /**
@@ -105,5 +105,22 @@ export class TemplatePlatform extends MatterbridgeDynamicPlatform {
       });
 
     await this.registerDevice(outlet);
+
+    // Example: Create and register a robotic vacuum cleaner device
+    const vacuum = new RoboticVacuumCleaner('Virtual Vacuum', 'VV123', 1)
+      .addCommandHandler('changeToMode', (data) => {
+        this.log.info(`Vacuum changeToMode called with: ${JSON.stringify(data.request)}`);
+      })
+      .addCommandHandler('pause', () => {
+        this.log.info('Vacuum pause command received');
+      })
+      .addCommandHandler('resume', () => {
+        this.log.info('Vacuum resume command received');
+      })
+      .addCommandHandler('goHome', () => {
+        this.log.info('Vacuum goHome command received');
+      });
+
+    await this.registerDevice(vacuum);
   }
 }
