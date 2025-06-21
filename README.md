@@ -21,7 +21,7 @@ If you like this project and find it useful, please consider giving it a star on
 
 ## Features
 
-- Pre-configured TypeScript, ESLint, Prettier, and Jest
+- Pre-configured TypeScript, ESLint, Prettier, Jest and Vitest
 - Example project structure for Accessory and Dynamic platforms
 - Ready for customization for your own plugin
 - **Dev Container support for instant development environment**
@@ -37,11 +37,14 @@ If you like this project and find it useful, please consider giving it a star on
 
 ## Using the Devcontainer
 
-- The devcontainer provides Node.js, npm, TypeScript, ESLint, Prettier, Jest and other tools and extensions pre-installed and configured.
+- Docker Desktop or Docker Engine are required to use the Dev Container.
+- Devcontainer works correctly on Linux, macOS, Windows, WSL2.
+- The devcontainer provides Node.js, npm, TypeScript, ESLint, Prettier, Jest, Vitest and other tools and extensions pre-installed and configured.
+- The devcontainer is optimized using named mounts for node_modules and matterbridge.
 - You can run, build, and test your plugin directly inside the container.
 - To open a terminal in the devcontainer, use the VS Code terminal after the container starts.
 - All commands (npm, tsc, matterbridge etc.) will run inside the container environment.
-- Since the dev container doesn't have network host and IPV6, is not possible to pair matterbridge from the Devcontainer but you can add your plugin to matterbridge and test it.
+- Since the dev container doesn't have network host and IPV6, is not possible to pair matterbridge from the Devcontainer but you can add your plugin to matterbridge and test it inside the devcontainer.
 
 ## Documentation
 
