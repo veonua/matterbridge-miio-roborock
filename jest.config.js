@@ -10,8 +10,8 @@ const presetConfig = createDefaultEsmPreset({
 
 const jestConfig = {
   testEnvironment: 'node',
-  testPathIgnorePatterns: ['/node_modules/', '/dist/'],
-  coveragePathIgnorePatterns: ['/node_modules/', '/dist/'],
+  testPathIgnorePatterns: ['/node_modules/', '/dist/', '/vitest/'],
+  coveragePathIgnorePatterns: ['/node_modules/', '/dist/', '/vitest/'],
   maxWorkers: '100%',
   ...presetConfig,
 };
