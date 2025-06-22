@@ -166,7 +166,7 @@ export class TemplatePlatform extends MatterbridgeDynamicPlatform {
   private async discoverDevices() {
     this.log.info('Discovering devices...');
 
-    let info = await RoborockClient.discover();
+    let info = await RoborockClient.discover(this.log, 5000);
     if (!info) {
       this.log.warn('No Roborock devices found via mDNS');
       // return;
@@ -179,7 +179,7 @@ export class TemplatePlatform extends MatterbridgeDynamicPlatform {
     }
     const { host, serialNumber, model } = info;
     this.log.info(`Discovered ${model} (${serialNumber}) at ${host}`);
-    this.roborock = new RoborockClient(host, Number(serialNumber), '7934776451524e4839584f77617a4566');
+    this.roborock = new RoborockClient(this.log, host, Number(serialNumber), '7934776451524e4839584f77617a4566');
 
     const runModes: RvcRunMode.ModeOption[] = [
       { label: 'Charge', mode: 1, modeTags: [{ value: RvcRunMode.ModeTag.Idle }] },
@@ -250,10 +250,14 @@ export class TemplatePlatform extends MatterbridgeDynamicPlatform {
           this.log.info(`Vacuum changeToMode called with mode: ${mode}`);
           switch (mode) {
             case 1:
-              await this.roborock?.dock();
+              await this.roborock?.dock().catch((err) => {
+                this.log.error(`Failed to dock vacuum: ${err.message}`);
+              });
               break;
             case 2:
-              await this.roborock?.startCleaning();
+              await this.roborock?.startCleaning().catch((err) => {
+                this.log.error(`Failed to start cleaning: ${err.message}`);
+              });
               break;
             case 3:
               await this.roborock?.pauseCleaning();
@@ -262,7 +266,10 @@ export class TemplatePlatform extends MatterbridgeDynamicPlatform {
               await this.roborock?.stopCleaning();
               break;
             default:
-              await this.roborock?.setMode(mode as IFanPower);
+              await this.roborock?.setMode(mode as IFanPower).catch((err) => {
+                this.log.error(`Failed to set vacuum mode: ${err.message}`);
+              });
+              break;
           }
         }
         this.log.info(`Vacuum changeToMode called with: ${JSON.stringify(data.request)}`);
