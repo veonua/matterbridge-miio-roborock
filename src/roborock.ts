@@ -10,7 +10,10 @@ import { IFanPower } from './types.js';
 export class RoborockClient {
   private socket = dgram.createSocket('udp4');
   private packet: Packet;
-  static async discover(log: AnsiLogger, timeout = 3000): Promise<
+  static async discover(
+    log: AnsiLogger,
+    timeout = 3000,
+  ): Promise<
     | {
         model: string;
         serialNumber: string;

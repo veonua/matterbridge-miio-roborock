@@ -1,6 +1,7 @@
 import { Matterbridge, MatterbridgeDynamicPlatform, PlatformConfig, RoboticVacuumCleaner } from 'matterbridge';
 import { RvcRunMode, RvcCleanMode, ServiceArea, RvcOperationalState } from 'matterbridge/matter/clusters';
 import { AnsiLogger, LogLevel } from 'matterbridge/logger';
+import * as miio from 'miio-api';
 
 import { RoborockClient } from './roborock.js';
 import { IFanPower } from './types.js';
@@ -173,7 +174,7 @@ export class TemplatePlatform extends MatterbridgeDynamicPlatform {
       info = {
         host: '192.168.0.143',
         serialNumber: '260426251',
-        model: 'roborock-vacuum-s5',
+        model: 'Roborock S5',
       };
       this.log.warn(`Using fallback device info: ${JSON.stringify(info)}`);
     }
@@ -247,6 +248,18 @@ export class TemplatePlatform extends MatterbridgeDynamicPlatform {
       .addCommandHandler('changeToMode', async (data) => {
         const mode = (data.request as any).newMode;
         if (typeof mode === 'number') {
+          const device = await miio.device({ address: '192.168.0.143', token: '7934776451524e4839584f77617a4566' });
+
+          this.log.info(`Connected to ${JSON.stringify(device)}`);
+
+          // this.log.info(`Vacuum info: ${JSON.stringify(info1)}`);
+
+          const info2 = await device.call<string[], [string]>('get_status', []);
+
+          this.log.info(`Vacuum status: ${JSON.stringify(info2)}`);
+
+          const info1 = await device.call<string[], []>('find_me', []);
+
           this.log.info(`Vacuum changeToMode called with mode: ${mode}`);
           switch (mode) {
             case 1:

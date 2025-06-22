@@ -1,6 +1,6 @@
 {
   "name": "roborock-matterbridge-plugin",
-  "version": "1.0.14",
+  "version": "1.1.10",
   "description": "Roborock Matterbridge Plugin",
   "author": "https://github.com/veonua",
   "homepage": "https://github.com/veonua/matterbridge-plugin-template/blob/main/README.md",
@@ -93,6 +93,7 @@
     "vitest": "^3.2.4"
   },
   "dependencies": {
+    "miio-api": "^0.4.1",
     "multicast-dns": "^7.2.5",
     "node-ansi-logger": "^3.0.1",
     "node-persist-manager": "^2.0.0"
