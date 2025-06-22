@@ -1,9 +1,9 @@
 {
   "name": "matterbridge-plugin-template",
-  "version": "1.0.0",
-  "description": "Matterbridge Template Plugin",
-  "author": "https://github.com/Luligu",
-  "homepage": "https://github.com/Luligu/matterbridge-plugin-template/blob/main/README.md",
+  "version": "1.0.1",
+  "description": "Roborock Matterbridge Plugin",
+  "author": "https://github.com/veonua",
+  "homepage": "https://github.com/veonua/matterbridge-plugin-template/blob/main/README.md",
   "license": "Apache-2.0",
   "type": "module",
   "main": "dist/module.js",
@@ -13,15 +13,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Luligu/matterbridge-plugin-template.git"
+    "url": "git+https://github.com/veonua/matterbridge-plugin-template.git"
   },
   "bugs": {
-    "url": "https://github.com/Luligu/matterbridge-plugin-template/issues"
+    "url": "https://github.com/veonua/matterbridge-plugin-template/issues"
   },
-  "funding": {
-    "type": "buymeacoffee",
-    "url": "https://www.buymeacoffee.com/luligugithub"
-  },
+  
   "keywords": [
     "matterbridge",
     "plugin",

@@ -86,35 +86,7 @@ export class TemplatePlatform extends MatterbridgeDynamicPlatform {
 
   private async discoverDevices() {
     this.log.info('Discovering devices...');
-    // Implement device discovery logic here.
-    // For example, you might fetch devices from an API.
-    // and register them with the Matterbridge instance.
 
-    // Example: Create and register an outlet device
-    // If you want to create an Accessory platform plugin and your platform extends MatterbridgeAccessoryPlatform,
-    // instead of createDefaultBridgedDeviceBasicInformationClusterServer, call createDefaultBasicInformationClusterServer().
-    const outlet = new MatterbridgeEndpoint(onOffOutlet, { uniqueStorageKey: 'outlet1' })
-      .createDefaultBridgedDeviceBasicInformationClusterServer(
-        'Outlet',
-        'SN123456',
-        this.matterbridge.aggregatorVendorId,
-        'Matterbridge',
-        'Matterbridge Outlet',
-        10000,
-        '1.0.0',
-      )
-      .createDefaultPowerSourceWiredClusterServer()
-      .addRequiredClusterServers()
-      .addCommandHandler('on', (data) => {
-        this.log.info(`Command on called on cluster ${data.cluster}`);
-      })
-      .addCommandHandler('off', (data) => {
-        this.log.info(`Command off called on cluster ${data.cluster}`);
-      });
-
-    // await this.registerDevice(outlet);
-
-    // Example: Create and register a robotic vacuum cleaner device
     const runModes: RvcRunMode.ModeOption[] = [
       { label: 'Idle', mode: 1, modeTags: [{ value: RvcRunMode.ModeTag.Idle }] },
       { label: 'Cleaning', mode: 2, modeTags: [{ value: RvcRunMode.ModeTag.Cleaning }] },
