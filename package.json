@@ -62,6 +62,7 @@
     "updateDependencies": "npx npm-check-updates -u && npm run reset",
     "runMeBeforePublish": "npm run lint && npm run format && npm run build && npm run test",
     "install:scripts": "npm install --save-dev npm-check-updates rimraf shx",
+    "install:dependencies": "npm install node-ansi-logger node-persist-manager",
     "install:typescript": "npm install --save-dev typescript @types/node",
     "install:eslint": "npm install --save-dev @eslint/js typescript-eslint eslint-plugin-import eslint-plugin-n eslint-plugin-promise eslint-plugin-jsdoc",
     "install:jest": "npm install --save-dev jest @types/jest @jest/globals eslint-plugin-jest",
@@ -93,5 +94,9 @@
     "typescript": "^5.8.3",
     "typescript-eslint": "^8.34.1",
     "vitest": "^3.2.4"
+  },
+  "dependencies": {
+    "node-ansi-logger": "^3.0.1",
+    "node-persist-manager": "^2.0.0"
   }
 }
