@@ -1,4 +1,12 @@
-import { Matterbridge, MatterbridgeDynamicPlatform, MatterbridgeEndpoint, onOffOutlet, PlatformConfig } from 'matterbridge';
+import {
+  Matterbridge,
+  MatterbridgeDynamicPlatform,
+  MatterbridgeEndpoint,
+  onOffOutlet,
+  PlatformConfig,
+  RoboticVacuumCleaner,
+} from 'matterbridge';
+import { RvcRunMode, RvcCleanMode, ServiceArea } from '@matter/main/clusters';
 import { AnsiLogger, LogLevel } from 'matterbridge/logger';
 
 /**
@@ -105,5 +113,78 @@ export class TemplatePlatform extends MatterbridgeDynamicPlatform {
       });
 
     await this.registerDevice(outlet);
+
+    // Example: Create and register a robotic vacuum cleaner device
+    const runModes: RvcRunMode.ModeOption[] = [
+      { label: 'Idle', mode: 1, modeTags: [{ value: RvcRunMode.ModeTag.Idle }] },
+      { label: 'Quiet', mode: 2, modeTags: [{ value: RvcRunMode.ModeTag.Cleaning }] },
+      { label: 'Balanced', mode: 3, modeTags: [{ value: RvcRunMode.ModeTag.Cleaning }] },
+      {
+        label: 'Turbo',
+        mode: 4,
+        modeTags: [
+          { value: RvcRunMode.ModeTag.Cleaning },
+          { value: RvcRunMode.ModeTag.Max },
+        ],
+      },
+      {
+        label: 'Max',
+        mode: 5,
+        modeTags: [
+          { value: RvcRunMode.ModeTag.Cleaning },
+          { value: RvcRunMode.ModeTag.Max },
+        ],
+      },
+    ];
+
+    const cleanModes: RvcCleanMode.ModeOption[] = [
+      { label: 'Vacuum', mode: 1, modeTags: [{ value: RvcCleanMode.ModeTag.Vacuum }] },
+      { label: 'Mop', mode: 2, modeTags: [{ value: RvcCleanMode.ModeTag.Mop }] },
+      {
+        label: 'Vacuum and Mop',
+        mode: 3,
+        modeTags: [
+          { value: RvcCleanMode.ModeTag.Vacuum },
+          { value: RvcCleanMode.ModeTag.Mop },
+        ],
+      },
+    ];
+
+    const serviceAreas: ServiceArea.Area[] = [
+      { areaId: 1, mapId: null, areaInfo: { locationInfo: { locationName: 'Kitchen', floorNumber: null, areaType: null }, landmarkInfo: null } },
+      { areaId: 2, mapId: null, areaInfo: { locationInfo: { locationName: 'Living Room', floorNumber: null, areaType: null }, landmarkInfo: null } },
+      { areaId: 3, mapId: null, areaInfo: { locationInfo: { locationName: 'Master Bedroom', floorNumber: null, areaType: null }, landmarkInfo: null } },
+      { areaId: 4, mapId: null, areaInfo: { locationInfo: { locationName: 'Second Bedroom', floorNumber: null, areaType: null }, landmarkInfo: null } },
+      { areaId: 5, mapId: null, areaInfo: { locationInfo: { locationName: 'Dressing', floorNumber: null, areaType: null }, landmarkInfo: null } },
+      { areaId: 6, mapId: null, areaInfo: { locationInfo: { locationName: 'Entryway', floorNumber: null, areaType: null }, landmarkInfo: null } },
+    ];
+
+    const vacuum = new RoboticVacuumCleaner(
+      'Virtual Vacuum',
+      'VV123',
+      1,
+      runModes,
+      1,
+      cleanModes,
+      null,
+      null,
+      undefined,
+      undefined,
+      serviceAreas,
+    )
+      .addCommandHandler('changeToMode', (data) => {
+        this.log.info(`Vacuum changeToMode called with: ${JSON.stringify(data.request)}`);
+      })
+      .addCommandHandler('pause', () => {
+        this.log.info('Vacuum pause command received');
+      })
+      .addCommandHandler('resume', () => {
+        this.log.info('Vacuum resume command received');
+      })
+      .addCommandHandler('goHome', () => {
+        this.log.info('Vacuum goHome command received');
+      });
+
+    await this.registerDevice(vacuum);
   }
 }
