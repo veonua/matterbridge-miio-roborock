@@ -6,7 +6,7 @@ import {
   PlatformConfig,
   RoboticVacuumCleaner,
 } from 'matterbridge';
-import { RvcRunMode, RvcCleanMode, ServiceArea } from '@matter/main/clusters';
+import { RvcRunMode, RvcCleanMode, ServiceArea, RvcOperationalState } from 'matterbridge/matter/clusters';
 import { AnsiLogger, LogLevel } from 'matterbridge/logger';
 
 /**
@@ -112,63 +112,67 @@ export class TemplatePlatform extends MatterbridgeDynamicPlatform {
         this.log.info(`Command off called on cluster ${data.cluster}`);
       });
 
-    await this.registerDevice(outlet);
+    // await this.registerDevice(outlet);
 
     // Example: Create and register a robotic vacuum cleaner device
     const runModes: RvcRunMode.ModeOption[] = [
       { label: 'Idle', mode: 1, modeTags: [{ value: RvcRunMode.ModeTag.Idle }] },
-      { label: 'Quiet', mode: 2, modeTags: [{ value: RvcRunMode.ModeTag.Cleaning }] },
-      { label: 'Balanced', mode: 3, modeTags: [{ value: RvcRunMode.ModeTag.Cleaning }] },
-      {
-        label: 'Turbo',
-        mode: 4,
-        modeTags: [
-          { value: RvcRunMode.ModeTag.Cleaning },
-          { value: RvcRunMode.ModeTag.Max },
-        ],
-      },
-      {
-        label: 'Max',
-        mode: 5,
-        modeTags: [
-          { value: RvcRunMode.ModeTag.Cleaning },
-          { value: RvcRunMode.ModeTag.Max },
-        ],
-      },
+      { label: 'Cleaning', mode: 2, modeTags: [{ value: RvcRunMode.ModeTag.Cleaning }] },
     ];
 
     const cleanModes: RvcCleanMode.ModeOption[] = [
-      { label: 'Vacuum', mode: 1, modeTags: [{ value: RvcCleanMode.ModeTag.Vacuum }] },
-      { label: 'Mop', mode: 2, modeTags: [{ value: RvcCleanMode.ModeTag.Mop }] },
-      {
-        label: 'Vacuum and Mop',
-        mode: 3,
-        modeTags: [
-          { value: RvcCleanMode.ModeTag.Vacuum },
-          { value: RvcCleanMode.ModeTag.Mop },
-        ],
-      },
+      { label: 'Gentle', mode: 1, modeTags: [{ value: RvcCleanMode.ModeTag.Vacuum }, { value: RvcCleanMode.ModeTag.Mop }] },
+      { label: 'Silent', mode: 2, modeTags: [{ value: RvcCleanMode.ModeTag.Vacuum }, { value: RvcCleanMode.ModeTag.Quiet }] },
+      { label: 'Balanced', mode: 3, modeTags: [{ value: RvcCleanMode.ModeTag.Vacuum }, { value: RvcCleanMode.ModeTag.Day }] },
+      { label: 'Turbo', mode: 4, modeTags: [{ value: RvcCleanMode.ModeTag.Vacuum }] },
+      { label: 'Max', mode: 5, modeTags: [{ value: RvcCleanMode.ModeTag.Vacuum }] },
     ];
 
     const serviceAreas: ServiceArea.Area[] = [
-      { areaId: 1, mapId: null, areaInfo: { locationInfo: { locationName: 'Kitchen', floorNumber: null, areaType: null }, landmarkInfo: null } },
-      { areaId: 2, mapId: null, areaInfo: { locationInfo: { locationName: 'Living Room', floorNumber: null, areaType: null }, landmarkInfo: null } },
-      { areaId: 3, mapId: null, areaInfo: { locationInfo: { locationName: 'Master Bedroom', floorNumber: null, areaType: null }, landmarkInfo: null } },
-      { areaId: 4, mapId: null, areaInfo: { locationInfo: { locationName: 'Second Bedroom', floorNumber: null, areaType: null }, landmarkInfo: null } },
-      { areaId: 5, mapId: null, areaInfo: { locationInfo: { locationName: 'Dressing', floorNumber: null, areaType: null }, landmarkInfo: null } },
-      { areaId: 6, mapId: null, areaInfo: { locationInfo: { locationName: 'Entryway', floorNumber: null, areaType: null }, landmarkInfo: null } },
+      {
+        areaId: 1,
+        mapId: null,
+        areaInfo: { locationInfo: { locationName: 'Kitchen', floorNumber: 1, areaType: null }, landmarkInfo: null },
+      },
+      {
+        areaId: 2,
+        mapId: null,
+        areaInfo: { locationInfo: { locationName: 'Living Room', floorNumber: 1, areaType: null }, landmarkInfo: null },
+      },
+      {
+        areaId: 3,
+        mapId: null,
+        areaInfo: { locationInfo: { locationName: 'Master Bedroom', floorNumber: 1, areaType: null }, landmarkInfo: null },
+      },
+      {
+        areaId: 4,
+        mapId: null,
+        areaInfo: { locationInfo: { locationName: 'Second Bedroom', floorNumber: 1, areaType: null }, landmarkInfo: null },
+      },
+      {
+        areaId: 5,
+        mapId: null,
+        areaInfo: { locationInfo: { locationName: 'Dressing', floorNumber: 1, areaType: null }, landmarkInfo: null },
+      },
+      {
+        areaId: 6,
+        mapId: null,
+        areaInfo: { locationInfo: { locationName: 'Entryway', floorNumber: 1, areaType: null }, landmarkInfo: null },
+      },
     ];
 
+    const operationalState = RvcOperationalState.OperationalState.Charging;
+
     const vacuum = new RoboticVacuumCleaner(
-      'Virtual Vacuum',
-      'VV123',
+      'Roborock S5',
+      'SN123456',
       1,
       runModes,
       1,
       cleanModes,
+      3, // balanced
       null,
-      null,
-      undefined,
+      operationalState,
       undefined,
       serviceAreas,
     )
