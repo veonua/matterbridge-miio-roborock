@@ -2,7 +2,19 @@ import { jest } from '@jest/globals';
 import { AnsiLogger, LogLevel } from 'matterbridge/logger';
 import { Matterbridge, MatterbridgeEndpoint, PlatformConfig } from 'matterbridge';
 
-import { TemplatePlatform } from '../src/module.ts';
+
+jest.unstable_mockModule('../src/roborock.ts', () => ({
+  RoborockClient: jest.fn().mockImplementation(() => ({
+    handshake: jest.fn(),
+    startCleaning: jest.fn(),
+    stopCleaning: jest.fn(),
+    pauseCleaning: jest.fn(),
+    resumeCleaning: jest.fn(),
+    dock: jest.fn(),
+    locate: jest.fn(),
+    setMode: jest.fn(),
+  })),
+}));
 
 const mockLog = {
   fatal: jest.fn((message: string, ...parameters: any[]) => {}),
@@ -43,7 +55,14 @@ const loggerLogSpy = jest
   .mockImplementation((level: string, message: string, ...parameters: any[]) => {});
 
 describe('Matterbridge Plugin Template', () => {
-  let instance: TemplatePlatform;
+  let TemplatePlatform: any;
+  let instance: any;
+
+  beforeAll(async () => {
+    const mod = await import('../src/module.ts');
+    TemplatePlatform = mod.TemplatePlatform;
+    await import('../src/roborock.ts');
+  });
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -62,8 +81,9 @@ describe('Matterbridge Plugin Template', () => {
   });
 
   it('should create an instance of the platform', async () => {
-    instance = (await import('../src/module.ts')).default(mockMatterbridge, mockLog, mockConfig) as TemplatePlatform;
-    expect(instance).toBeInstanceOf(TemplatePlatform);
+    const mod = await import('../src/module.ts');
+    instance = mod.default(mockMatterbridge, mockLog, mockConfig);
+    expect(instance).toBeInstanceOf(mod.TemplatePlatform);
     expect(instance.matterbridge).toBe(mockMatterbridge);
     expect(instance.log).toBe(mockLog);
     expect(instance.config).toBe(mockConfig);
@@ -80,13 +100,15 @@ describe('Matterbridge Plugin Template', () => {
 
   it('should call the command handlers', async () => {
     for (const device of instance.getDevices()) {
-      if (device.hasClusterServer('onOff')) {
-        await device.executeCommandHandler('on');
-        await device.executeCommandHandler('off');
-      }
+      await device.executeCommandHandler('pause');
+      await device.executeCommandHandler('resume');
+      await device.executeCommandHandler('goHome');
+      await device.executeCommandHandler('locate');
     }
-    expect(mockLog.info).toHaveBeenCalledWith('Command on called on cluster undefined'); // Is undefined here cause the endpoint in not active
-    expect(mockLog.info).toHaveBeenCalledWith('Command off called on cluster undefined'); // Is undefined here cause the endpoint in not active
+    expect(mockLog.info).toHaveBeenCalledWith('Vacuum pause command received');
+    expect(mockLog.info).toHaveBeenCalledWith('Vacuum resume command received');
+    expect(mockLog.info).toHaveBeenCalledWith('Vacuum goHome command received');
+    expect(mockLog.info).toHaveBeenCalledWith('Vacuum locate command received');
   });
 
   it('should configure', async () => {
