@@ -2,7 +2,8 @@ import { Matterbridge, MatterbridgeDynamicPlatform, PlatformConfig, RoboticVacuu
 import { RvcRunMode, RvcCleanMode, ServiceArea, RvcOperationalState } from 'matterbridge/matter/clusters';
 import { AnsiLogger, LogLevel } from 'matterbridge/logger';
 
-import { RoborockClient } from './roborock.ts';
+import { RoborockClient } from './roborock.js';
+import { IFanPower } from './types.js';
 
 /**
  MDNS discovery example for Roborock S5 vacuum cleaner.
@@ -20,9 +21,9 @@ import { RoborockClient } from './roborock.ts';
         }
     }
 }
-
+ 
  ***
-
+ 
  {
     "fan_power": 102,
     "reddit": "veonua",
@@ -165,26 +166,34 @@ export class TemplatePlatform extends MatterbridgeDynamicPlatform {
   private async discoverDevices() {
     this.log.info('Discovering devices...');
 
-    const info = await RoborockClient.discover();
+    let info = await RoborockClient.discover();
     if (!info) {
       this.log.warn('No Roborock devices found via mDNS');
-      return;
+      // return;
+      info = {
+        host: '192.168.0.143',
+        serialNumber: '260426251',
+        model: 'roborock-vacuum-s5',
+      };
+      this.log.warn(`Using fallback device info: ${JSON.stringify(info)}`);
     }
     const { host, serialNumber, model } = info;
     this.log.info(`Discovered ${model} (${serialNumber}) at ${host}`);
-    this.roborock = new RoborockClient(host, Number(serialNumber), '00000000000000000000000000000000');
+    this.roborock = new RoborockClient(host, Number(serialNumber), '7934776451524e4839584f77617a4566');
 
     const runModes: RvcRunMode.ModeOption[] = [
-      { label: 'Idle', mode: 1, modeTags: [{ value: RvcRunMode.ModeTag.Idle }] },
-      { label: 'Cleaning', mode: 2, modeTags: [{ value: RvcRunMode.ModeTag.Cleaning }] },
+      { label: 'Charge', mode: 1, modeTags: [{ value: RvcRunMode.ModeTag.Idle }] },
+      { label: 'Start', mode: 2, modeTags: [{ value: RvcRunMode.ModeTag.Cleaning }] },
+      { label: 'Pause', mode: 3, modeTags: [{ value: RvcRunMode.ModeTag.Idle }] },
+      { label: 'Stop', mode: 4, modeTags: [{ value: RvcRunMode.ModeTag.Idle }] },
     ];
 
     const cleanModes: RvcCleanMode.ModeOption[] = [
-      { label: 'Gentle', mode: 1, modeTags: [{ value: RvcCleanMode.ModeTag.Vacuum }, { value: RvcCleanMode.ModeTag.Mop }] },
-      { label: 'Silent', mode: 2, modeTags: [{ value: RvcCleanMode.ModeTag.Vacuum }, { value: RvcCleanMode.ModeTag.Quiet }] },
-      { label: 'Balanced', mode: 3, modeTags: [{ value: RvcCleanMode.ModeTag.Vacuum }, { value: RvcCleanMode.ModeTag.Day }] },
-      { label: 'Turbo', mode: 4, modeTags: [{ value: RvcCleanMode.ModeTag.Vacuum }] },
-      { label: 'Max', mode: 5, modeTags: [{ value: RvcCleanMode.ModeTag.Vacuum }] },
+      { label: 'Gentle', mode: 101, modeTags: [{ value: RvcCleanMode.ModeTag.Vacuum }, { value: RvcCleanMode.ModeTag.Mop }] },
+      { label: 'Silent', mode: 102, modeTags: [{ value: RvcCleanMode.ModeTag.Vacuum }, { value: RvcCleanMode.ModeTag.Quiet }] },
+      { label: 'Balanced', mode: 103, modeTags: [{ value: RvcCleanMode.ModeTag.Vacuum }, { value: RvcCleanMode.ModeTag.Day }] },
+      { label: 'Turbo', mode: 104, modeTags: [{ value: RvcCleanMode.ModeTag.Vacuum }] },
+      { label: 'Max', mode: 105, modeTags: [{ value: RvcCleanMode.ModeTag.Vacuum }] },
     ];
 
     const serviceAreas: ServiceArea.Area[] = [
@@ -223,11 +232,11 @@ export class TemplatePlatform extends MatterbridgeDynamicPlatform {
     const operationalState = RvcOperationalState.OperationalState.Charging;
 
     const vacuum = new RoboticVacuumCleaner(
-      'Roborock S5',
-      'SN123456',
+      model,
+      serialNumber,
       1,
       runModes,
-      1,
+      103,
       cleanModes,
       3, // balanced
       null,
@@ -238,10 +247,35 @@ export class TemplatePlatform extends MatterbridgeDynamicPlatform {
       .addCommandHandler('changeToMode', async (data) => {
         const mode = (data.request as any).newMode;
         if (typeof mode === 'number') {
-          await this.roborock?.setMode(mode);
+          this.log.info(`Vacuum changeToMode called with mode: ${mode}`);
+          switch (mode) {
+            case 1:
+              await this.roborock?.dock();
+              break;
+            case 2:
+              await this.roborock?.startCleaning();
+              break;
+            case 3:
+              await this.roborock?.pauseCleaning();
+              break;
+            case 4:
+              await this.roborock?.stopCleaning();
+              break;
+            default:
+              await this.roborock?.setMode(mode as IFanPower);
+          }
         }
         this.log.info(`Vacuum changeToMode called with: ${JSON.stringify(data.request)}`);
       })
+      // .addCommandHandler('startCleaning', async (data) => {
+      //   const area = (data.request as any).area;
+      //   if (area && area.areaId) {
+      //     await this.roborock?.startCleaningArea(area.areaId);
+      //   } else {
+      //     await this.roborock?.startCleaning();
+      //   }
+      //   this.log.info(`Vacuum startCleaning command received with area: ${JSON.stringify(area)}`);
+      // })
       .addCommandHandler('pause', async () => {
         await this.roborock?.pauseCleaning();
         this.log.info('Vacuum pause command received');
@@ -254,11 +288,11 @@ export class TemplatePlatform extends MatterbridgeDynamicPlatform {
         await this.roborock?.dock();
         this.log.info('Vacuum goHome command received');
       });
-      
-      // .addCommandHandler('locate', async () => {
-      //   await this.roborock?.locate();
-      //   this.log.info('Vacuum locate command received');
-      // });
+
+    // .addCommandHandler('locate', async () => {
+    //   await this.roborock?.locate();
+    //   this.log.info('Vacuum locate command received');
+    // });
 
     await this.registerDevice(vacuum);
   }
