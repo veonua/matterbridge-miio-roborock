@@ -1,4 +1,12 @@
-import { Matterbridge, MatterbridgeDynamicPlatform, MatterbridgeEndpoint, onOffOutlet, PlatformConfig } from 'matterbridge';
+import {
+  Matterbridge,
+  MatterbridgeDynamicPlatform,
+  MatterbridgeEndpoint,
+  onOffOutlet,
+  PlatformConfig,
+  RoboticVacuumCleaner,
+} from 'matterbridge';
+import { RvcRunMode, RvcCleanMode, ServiceArea, RvcOperationalState } from 'matterbridge/matter/clusters';
 import { AnsiLogger, LogLevel } from 'matterbridge/logger';
 
 /**
@@ -78,32 +86,81 @@ export class TemplatePlatform extends MatterbridgeDynamicPlatform {
 
   private async discoverDevices() {
     this.log.info('Discovering devices...');
-    // Implement device discovery logic here.
-    // For example, you might fetch devices from an API.
-    // and register them with the Matterbridge instance.
 
-    // Example: Create and register an outlet device
-    // If you want to create an Accessory platform plugin and your platform extends MatterbridgeAccessoryPlatform,
-    // instead of createDefaultBridgedDeviceBasicInformationClusterServer, call createDefaultBasicInformationClusterServer().
-    const outlet = new MatterbridgeEndpoint(onOffOutlet, { uniqueStorageKey: 'outlet1' })
-      .createDefaultBridgedDeviceBasicInformationClusterServer(
-        'Outlet',
-        'SN123456',
-        this.matterbridge.aggregatorVendorId,
-        'Matterbridge',
-        'Matterbridge Outlet',
-        10000,
-        '1.0.0',
-      )
-      .createDefaultPowerSourceWiredClusterServer()
-      .addRequiredClusterServers()
-      .addCommandHandler('on', (data) => {
-        this.log.info(`Command on called on cluster ${data.cluster}`);
+    const runModes: RvcRunMode.ModeOption[] = [
+      { label: 'Idle', mode: 1, modeTags: [{ value: RvcRunMode.ModeTag.Idle }] },
+      { label: 'Cleaning', mode: 2, modeTags: [{ value: RvcRunMode.ModeTag.Cleaning }] },
+    ];
+
+    const cleanModes: RvcCleanMode.ModeOption[] = [
+      { label: 'Gentle', mode: 1, modeTags: [{ value: RvcCleanMode.ModeTag.Vacuum }, { value: RvcCleanMode.ModeTag.Mop }] },
+      { label: 'Silent', mode: 2, modeTags: [{ value: RvcCleanMode.ModeTag.Vacuum }, { value: RvcCleanMode.ModeTag.Quiet }] },
+      { label: 'Balanced', mode: 3, modeTags: [{ value: RvcCleanMode.ModeTag.Vacuum }, { value: RvcCleanMode.ModeTag.Day }] },
+      { label: 'Turbo', mode: 4, modeTags: [{ value: RvcCleanMode.ModeTag.Vacuum }] },
+      { label: 'Max', mode: 5, modeTags: [{ value: RvcCleanMode.ModeTag.Vacuum }] },
+    ];
+
+    const serviceAreas: ServiceArea.Area[] = [
+      {
+        areaId: 1,
+        mapId: null,
+        areaInfo: { locationInfo: { locationName: 'Kitchen', floorNumber: 1, areaType: null }, landmarkInfo: null },
+      },
+      {
+        areaId: 2,
+        mapId: null,
+        areaInfo: { locationInfo: { locationName: 'Living Room', floorNumber: 1, areaType: null }, landmarkInfo: null },
+      },
+      {
+        areaId: 3,
+        mapId: null,
+        areaInfo: { locationInfo: { locationName: 'Master Bedroom', floorNumber: 1, areaType: null }, landmarkInfo: null },
+      },
+      {
+        areaId: 4,
+        mapId: null,
+        areaInfo: { locationInfo: { locationName: 'Second Bedroom', floorNumber: 1, areaType: null }, landmarkInfo: null },
+      },
+      {
+        areaId: 5,
+        mapId: null,
+        areaInfo: { locationInfo: { locationName: 'Dressing', floorNumber: 1, areaType: null }, landmarkInfo: null },
+      },
+      {
+        areaId: 6,
+        mapId: null,
+        areaInfo: { locationInfo: { locationName: 'Entryway', floorNumber: 1, areaType: null }, landmarkInfo: null },
+      },
+    ];
+
+    const operationalState = RvcOperationalState.OperationalState.Charging;
+
+    const vacuum = new RoboticVacuumCleaner(
+      'Roborock S5',
+      'SN123456',
+      1,
+      runModes,
+      1,
+      cleanModes,
+      3, // balanced
+      null,
+      operationalState,
+      undefined,
+      serviceAreas,
+    )
+      .addCommandHandler('changeToMode', (data) => {
+        this.log.info(`Vacuum changeToMode called with: ${JSON.stringify(data.request)}`);
       })
-      .addCommandHandler('off', (data) => {
-        this.log.info(`Command off called on cluster ${data.cluster}`);
+      .addCommandHandler('pause', () => {
+        this.log.info('Vacuum pause command received');
+      })
+      .addCommandHandler('resume', () => {
+        this.log.info('Vacuum resume command received');
+      })
+      .addCommandHandler('goHome', () => {
+        this.log.info('Vacuum goHome command received');
       });
 
-    await this.registerDevice(outlet);
+    await this.registerDevice(vacuum);
   }
 }

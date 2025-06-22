@@ -49,6 +49,10 @@ If you like this project and find it useful, please consider giving it a star on
 - All commands (npm, tsc, matterbridge etc.) will run inside the container environment.
 - Since the dev container doesn't have network host and IPV6, is not possible to pair matterbridge from the Devcontainer but you can add your plugin to matterbridge and test it inside the devcontainer.
 
+## Example: Virtual Robot Vacuum
+
+This template now includes an example of how to register a virtual robotic vacuum cleaner. The vacuum exposes clusters for run mode, clean mode and operational state and logs simple messages when commands like `changeToMode`, `pause`, `resume` or `goHome` are received. Supported run and clean modes are modelled after the Roborock S5. The example also defines service areas for **Kitchen**, **Living Room**, **Master Bedroom**, **Second Bedroom**, **Dressing** and **Entryway**. Check `src/module.ts` for the implementation details.
+
 ## Documentation
 
 Refer to the Matterbridge documentation for other guidelines.
