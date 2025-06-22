@@ -18,7 +18,6 @@
   "bugs": {
     "url": "https://github.com/veonua/matterbridge-plugin-template/issues"
   },
-  
   "keywords": [
     "matterbridge",
     "plugin",
@@ -93,6 +92,7 @@
     "vitest": "^3.2.4"
   },
   "dependencies": {
+    "multicast-dns": "^7.2.5",
     "node-ansi-logger": "^3.0.1",
     "node-persist-manager": "^2.0.0"
   }

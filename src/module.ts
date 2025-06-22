@@ -2,7 +2,7 @@ import { Matterbridge, MatterbridgeDynamicPlatform, PlatformConfig, RoboticVacuu
 import { RvcRunMode, RvcCleanMode, ServiceArea, RvcOperationalState } from 'matterbridge/matter/clusters';
 import { AnsiLogger, LogLevel } from 'matterbridge/logger';
 
-import { RoborockClient } from './roborock.js';
+import { RoborockClient } from './roborock.ts';
 
 /**
  MDNS discovery example for Roborock S5 vacuum cleaner.
@@ -165,8 +165,14 @@ export class TemplatePlatform extends MatterbridgeDynamicPlatform {
   private async discoverDevices() {
     this.log.info('Discovering devices...');
 
-    this.roborock = new RoborockClient('192.168.1.100', 1234567890, '00000000000000000000000000000000');
-    await this.roborock.handshake();
+    const info = await RoborockClient.discover();
+    if (!info) {
+      this.log.warn('No Roborock devices found via mDNS');
+      return;
+    }
+    const { host, serialNumber, model } = info;
+    this.log.info(`Discovered ${model} (${serialNumber}) at ${host}`);
+    this.roborock = new RoborockClient(host, Number(serialNumber), '00000000000000000000000000000000');
 
     const runModes: RvcRunMode.ModeOption[] = [
       { label: 'Idle', mode: 1, modeTags: [{ value: RvcRunMode.ModeTag.Idle }] },
