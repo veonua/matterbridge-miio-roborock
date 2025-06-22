@@ -1,7 +1,9 @@
 // prettier.config.js
-// @ts-check
+
+// Config for Prettier
+
 export default {
-  printWidth: 140, // default 80
+  printWidth: 180, // default 80
   tabWidth: 2,
   useTabs: false,
   semi: true,

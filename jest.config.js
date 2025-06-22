@@ -9,11 +9,12 @@ const presetConfig = createDefaultEsmPreset({
 });
 
 const jestConfig = {
+  ...presetConfig,
   testEnvironment: 'node',
+  moduleNameMapper: { '^(\\.{1,2}/.*)\\.js$': '$1' }, // Handle ESM imports by removing the .js extension
   testPathIgnorePatterns: ['/node_modules/', '/dist/', '/vitest/'],
   coveragePathIgnorePatterns: ['/node_modules/', '/dist/', '/vitest/'],
   maxWorkers: '100%',
-  ...presetConfig,
 };
 
 export default jestConfig;

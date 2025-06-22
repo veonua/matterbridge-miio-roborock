@@ -22,11 +22,7 @@ export class TemplatePlatform extends MatterbridgeDynamicPlatform {
     super(matterbridge, log, config);
 
     // Verify that Matterbridge is the correct version
-    if (
-      this.verifyMatterbridgeVersion === undefined ||
-      typeof this.verifyMatterbridgeVersion !== 'function' ||
-      !this.verifyMatterbridgeVersion('3.0.7')
-    ) {
+    if (this.verifyMatterbridgeVersion === undefined || typeof this.verifyMatterbridgeVersion !== 'function' || !this.verifyMatterbridgeVersion('3.0.7')) {
       throw new Error(
         `This plugin requires Matterbridge version >= "3.0.7". Please update Matterbridge from ${this.matterbridge.matterbridgeVersion} to the latest version in the frontend."`,
       );
@@ -86,15 +82,7 @@ export class TemplatePlatform extends MatterbridgeDynamicPlatform {
     // If you want to create an Accessory platform plugin and your platform extends MatterbridgeAccessoryPlatform,
     // instead of createDefaultBridgedDeviceBasicInformationClusterServer, call createDefaultBasicInformationClusterServer().
     const outlet = new MatterbridgeEndpoint(onOffOutlet, { uniqueStorageKey: 'outlet1' })
-      .createDefaultBridgedDeviceBasicInformationClusterServer(
-        'Outlet',
-        'SN123456',
-        this.matterbridge.aggregatorVendorId,
-        'Matterbridge',
-        'Matterbridge Outlet',
-        10000,
-        '1.0.0',
-      )
+      .createDefaultBridgedDeviceBasicInformationClusterServer('Outlet', 'SN123456', this.matterbridge.aggregatorVendorId, 'Matterbridge', 'Matterbridge Outlet', 10000, '1.0.0')
       .createDefaultPowerSourceWiredClusterServer()
       .addRequiredClusterServers()
       .addCommandHandler('on', (data) => {
