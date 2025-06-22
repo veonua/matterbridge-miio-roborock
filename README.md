@@ -11,24 +11,7 @@
 [![power by](https://img.shields.io/badge/powered%20by-node--ansi--logger-blue)](https://www.npmjs.com/package/node-ansi-logger)
 [![power by](https://img.shields.io/badge/powered%20by-node--persist--manager-blue)](https://www.npmjs.com/package/node-persist-manager)
 
-This repository provides a default template for developing Matterbridge plugins.
-
-If you like this project and find it useful, please consider giving it a star on GitHub at [Matterbridge Plugin Template](https://github.com/Luligu/matterbridge-plugin-template) and sponsoring it.
-
-<a href="https://www.buymeacoffee.com/luligugithub">
-  <img src="bmc-button.svg" alt="Buy me a coffee" width="120">
-</a>
-
-## Features
-
-- **Dev Container support for instant development environment**.
-- Pre-configured TypeScript, ESLint, Prettier, Jest and Vitest.
-- Example project structure for Accessory and Dynamic platforms.
-- Ready for customization for your own plugin.
-- The dev branch of Matterbridge is already build and installed into the Dev Container and linked to the plugin.
-- The project has an already configured Jest / Vitest test unit (with 100% coverage) that you can expand while you add your own plugin logic.
-- It has a workflow configured to run on push and pull request that build, lint and test the plugin on node 20, 22 and 24 with ubuntu, macOS and windows.
-- It also has a workflow configured to publish on npm. Add your NPM_TOKEN to the repository.
+This template now includes an example of how to register a virtual robotic vacuum cleaner. The vacuum exposes clusters for run mode, clean mode and operational state and logs simple messages when commands like `changeToMode`, `pause`, `resume` or `goHome` are received. Supported run and clean modes are modelled after the Roborock S5. The example also defines service areas for **Kitchen**, **Living Room**, **Master Bedroom**, **Second Bedroom**, **Dressing** and **Entryway**. Check `src/module.ts` for the implementation details.
 
 ## Getting Started
 
@@ -48,10 +31,6 @@ If you like this project and find it useful, please consider giving it a star on
 - To open a terminal in the devcontainer, use the VS Code terminal after the container starts.
 - All commands (npm, tsc, matterbridge etc.) will run inside the container environment.
 - Since the dev container doesn't have network host and IPV6, is not possible to pair matterbridge from the Devcontainer but you can add your plugin to matterbridge and test it inside the devcontainer.
-
-## Example: Virtual Robot Vacuum
-
-This template now includes an example of how to register a virtual robotic vacuum cleaner. The vacuum exposes clusters for run mode, clean mode and operational state and logs simple messages when commands like `changeToMode`, `pause`, `resume` or `goHome` are received. Supported run and clean modes are modelled after the Roborock S5. The example also defines service areas for **Kitchen**, **Living Room**, **Master Bedroom**, **Second Bedroom**, **Dressing** and **Entryway**. Check `src/module.ts` for the implementation details.
 
 ## Documentation
 
