@@ -13,12 +13,12 @@
 
 export interface IStartStop {
   start: boolean;
-  zone: string|undefined;
-  multipleZones: string[]|undefined;
+  zone: string | undefined;
+  multipleZones: string[] | undefined;
 }
 
 export interface IPause {
-  pause : boolean
+  pause: boolean;
 }
 
 export interface ILocate {
@@ -28,57 +28,57 @@ export interface ILocate {
 
 export interface IModeSetting {
   updateModeSettings: {
-    mode: string
-  }
+    mode: string;
+  };
 }
 
 export interface IOnOff {
-  on : boolean
+  on: boolean;
 }
 
 export interface IFanSpeed {
-  fanSpeed : string|number
+  fanSpeed: string | number;
 }
 
 export interface IThermostatTemperatureSetpoint {
-  thermostatTemperatureSetpoint : number
+  thermostatTemperatureSetpoint: number;
 }
 
 export interface IThermostatMode {
-  thermostatMode : 'off' | 'heat' | 'on' | 'eco' | 'cool' | 'auto' | 'dry' | 'fan-only'
+  thermostatMode: 'off' | 'heat' | 'on' | 'eco' | 'cool' | 'auto' | 'dry' | 'fan-only';
 }
 
 export type IAcCommand = IOnOff | IFanSpeed | IModeSetting | IThermostatTemperatureSetpoint | IThermostatMode;
 
 export type IVacuumCommand = IStartStop | IPause | ILocate | IModeSetting;
 
-export type IFanPower = 101 | 102 | 103 | 104 | 105
+export type IFanPower = 101 | 102 | 103 | 104 | 105;
 
-export type IBatteryCapacity = 'CRITICALLY_LOW' | 'LOW' | 'MEDIUM' | 'HIGH' | 'FULL'
+export type IBatteryCapacity = 'CRITICALLY_LOW' | 'LOW' | 'MEDIUM' | 'HIGH' | 'FULL';
 
 // interface IVacuumModes {
 //   currentModeSettings: {
 //     mode: IFanPower;
 //   }
 // }
-interface IStatus {
-  battery:number,
-  clean_area:number,
-  clean_time:number,
-  dnd_enabled: 0 | 1,
-  error_code: number,
-  fan_power: IFanPower,
-  in_cleaning: 0 | 1 | 2,
-  in_returning: 0 | 1,
-  in_fresh_state: 0 | 1,
-  lab_status: 0 | 1,
-  lock_status: 0 | 1,
-  water_box_status: 0 | 1,
-  map_present: 0 | 1,
-  map_status: 0 | 1 | 2 | 3
-  msg_seq:number,
-  msg_ver:number,
-  state: 0 | 1| 2| 3| 4| 5| 6| 7| 8|9 |10|11|12|13|14|15|16|17|100
+export interface IStatus {
+  battery: number;
+  clean_area: number;
+  clean_time: number;
+  dnd_enabled: 0 | 1;
+  error_code: number;
+  fan_power: IFanPower;
+  in_cleaning: 0 | 1 | 2;
+  in_returning: 0 | 1;
+  in_fresh_state: 0 | 1;
+  lab_status: 0 | 1;
+  lock_status: 0 | 1;
+  water_box_status: 0 | 1;
+  map_present: 0 | 1;
+  map_status: 0 | 1 | 2 | 3;
+  msg_seq: number;
+  msg_ver: number;
+  state: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 100;
 
   /*
   states = {
@@ -107,53 +107,53 @@ interface IStatus {
 }
 
 export interface IDeviceState {
-  online?: boolean
-  status: string
+  online?: boolean;
+  status: string;
 }
 
 export interface ISuccessState extends IDeviceState {
-  status: "SUCCESS"
+  status: 'SUCCESS';
 }
 
 export interface IErrorState extends IDeviceState {
-  errorCode: string
-  status: "ERROR"
+  errorCode: string;
+  status: 'ERROR';
 }
 
 export interface IMiResponse {
-  id: number
-  result: [any]
+  id: number;
+  result: [any];
   error?: {
-    code: number,
-    message: string
-  }
+    code: number;
+    message: string;
+  };
 }
 
 export interface IMiCommand {
-  //id: number;
+  // id: number;
   method: string;
   params?: any[];
 }
 
 export interface ISegment {
-  aliases: [string],
+  aliases: [string];
   segments: [number];
   fan_power?: IFanPower;
 }
 
 export interface IZone {
-  aliases: [string],
-  zones: [[number,number,number,number,number]];
+  aliases: [string];
+  zones: [[number, number, number, number, number]];
   fan_power?: IFanPower;
 }
 
 export interface IDeviceCustomData {
-  token: string
+  token: string;
 }
 
 export interface IVacumCustomData extends IDeviceCustomData {
-  fan_power : IFanPower,
-  segments?: Map<string, ISegment>,
-  zones?: Map<string, IZone>,
-  targets?: Record<string, [number,number]>
+  fan_power: IFanPower;
+  segments?: Map<string, ISegment>;
+  zones?: Map<string, IZone>;
+  targets?: Record<string, [number, number]>;
 }

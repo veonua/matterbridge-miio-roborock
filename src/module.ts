@@ -1,13 +1,90 @@
-import {
-  Matterbridge,
-  MatterbridgeDynamicPlatform,
-  MatterbridgeEndpoint,
-  onOffOutlet,
-  PlatformConfig,
-  RoboticVacuumCleaner,
-} from 'matterbridge';
+import { Matterbridge, MatterbridgeDynamicPlatform, PlatformConfig, RoboticVacuumCleaner } from 'matterbridge';
 import { RvcRunMode, RvcCleanMode, ServiceArea, RvcOperationalState } from 'matterbridge/matter/clusters';
 import { AnsiLogger, LogLevel } from 'matterbridge/logger';
+
+import { RoborockClient } from './roborock.js';
+
+/**
+ MDNS discovery example for Roborock S5 vacuum cleaner.
+ {
+    "mdnsScanData": {
+        "serviceName": "roborock-vacuum-s5_miio260426251._miio._udp.local",
+        "name": "roborock-vacuum-s5_miio260426251",
+        "type": "miio",
+        "protocol": "udp",
+        "data": [
+            "path=/mydevice"
+        ],
+        "txt": {
+            "path": "/mydevice"
+        }
+    }
+}
+
+ ***
+
+ {
+    "fan_power": 102,
+    "reddit": "veonua",
+    "segments": {
+        "bedroom": {
+            "aliases": [
+                "master bedroom",
+                "left room"
+            ],
+            "segments": [
+                18
+            ]
+        },
+        "corridor": {
+            "aliases": [
+                "dressing room"
+            ],
+            "segments": [
+                17
+            ]
+        },
+        "entryway": {
+            "aliases": [
+                "entrance",
+                "hall",
+                "hallway"
+            ],
+            "fan_power": 103,
+            "segments": [
+                20
+            ]
+        },
+        "kitchen": {
+            "aliases": [
+                "cookery"
+            ],
+            "fan_power": 103,
+            "segments": [
+                19
+            ]
+        },
+        "living room": {
+            "aliases": [
+                "lounge"
+            ],
+            "segments": [
+                21
+            ]
+        },
+        "second bedroom": {
+            "aliases": [
+                "guest bedroom",
+                "right room"
+            ],
+            "segments": [
+                16
+            ]
+        }
+    },
+    "token": "7934776451524e4839584f77617a4566"
+}
+ */
 
 /**
  * This is the standard interface for Matterbridge plugins.
@@ -25,6 +102,7 @@ export default function initializePlugin(matterbridge: Matterbridge, log: AnsiLo
 // Here we define the TemplatePlatform class, which extends the MatterbridgeDynamicPlatform.
 // If you want to create an Accessory platform plugin, you should extend the MatterbridgeAccessoryPlatform class instead.
 export class TemplatePlatform extends MatterbridgeDynamicPlatform {
+  private roborock?: RoborockClient;
   constructor(matterbridge: Matterbridge, log: AnsiLogger, config: PlatformConfig) {
     // Always call super(matterbridge, log, config)
     super(matterbridge, log, config);
@@ -87,6 +165,9 @@ export class TemplatePlatform extends MatterbridgeDynamicPlatform {
   private async discoverDevices() {
     this.log.info('Discovering devices...');
 
+    this.roborock = new RoborockClient('192.168.1.100', 1234567890, '00000000000000000000000000000000');
+    await this.roborock.handshake();
+
     const runModes: RvcRunMode.ModeOption[] = [
       { label: 'Idle', mode: 1, modeTags: [{ value: RvcRunMode.ModeTag.Idle }] },
       { label: 'Cleaning', mode: 2, modeTags: [{ value: RvcRunMode.ModeTag.Cleaning }] },
@@ -148,18 +229,30 @@ export class TemplatePlatform extends MatterbridgeDynamicPlatform {
       undefined,
       serviceAreas,
     )
-      .addCommandHandler('changeToMode', (data) => {
+      .addCommandHandler('changeToMode', async (data) => {
+        const mode = (data.request as any).newMode;
+        if (typeof mode === 'number') {
+          await this.roborock?.setMode(mode);
+        }
         this.log.info(`Vacuum changeToMode called with: ${JSON.stringify(data.request)}`);
       })
-      .addCommandHandler('pause', () => {
+      .addCommandHandler('pause', async () => {
+        await this.roborock?.pauseCleaning();
         this.log.info('Vacuum pause command received');
       })
-      .addCommandHandler('resume', () => {
+      .addCommandHandler('resume', async () => {
+        await this.roborock?.resumeCleaning();
         this.log.info('Vacuum resume command received');
       })
-      .addCommandHandler('goHome', () => {
+      .addCommandHandler('goHome', async () => {
+        await this.roborock?.dock();
         this.log.info('Vacuum goHome command received');
       });
+      
+      // .addCommandHandler('locate', async () => {
+      //   await this.roborock?.locate();
+      //   this.log.info('Vacuum locate command received');
+      // });
 
     await this.registerDevice(vacuum);
   }

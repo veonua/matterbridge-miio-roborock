@@ -18,11 +18,11 @@ import {  IDeviceState,
           IVacumCustomData,
           IDeviceCustomData,
           IVacuumCommand,
-          IAcCommand} from "./types";
+          IAcCommand} from "./../types.js";
 
-import { VacuumDevice } from "./vacumdevice"
+import { VacuumDevice } from "./vacumdevice.js"
 import { AcPartnerDevice } from "./acdevice"
-import { IMiDevice, MiError } from "./midevice"
+import { IMiDevice, MiError } from "./midevice.js"
 import { UnexpectedInputPacket } from "./packet"
 
 interface DeviceStatesMap {
