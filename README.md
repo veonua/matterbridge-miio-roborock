@@ -21,16 +21,19 @@ If you like this project and find it useful, please consider giving it a star on
 
 ## Features
 
-- Pre-configured TypeScript, ESLint, Prettier, Jest and Vitest
-- Example project structure for Accessory and Dynamic platforms
-- Ready for customization for your own plugin
-- **Dev Container support for instant development environment**
+- **Dev Container support for instant development environment**.
+- Pre-configured TypeScript, ESLint, Prettier, Jest and Vitest.
+- Example project structure for Accessory and Dynamic platforms.
+- Ready for customization for your own plugin.
 - The dev branch of Matterbridge is already build and installed into the Dev Container and linked to the plugin.
+- The project has an already configured Jest / Vitest test unit (with 100% coverage) that you can expand while you add your own plugin logic.
+- It has a workflow configured to run on push and pull request that build, lint and test the plugin on node 20, 22 and 24 with ubuntu, macOS and windows.
+- It also has a workflow configured to publish on npm. Add your NPM_TOKEN to the repository.
 
 ## Getting Started
 
 1. Clone this repository.
-2. Open the folder in [VS Code](https://code.visualstudio.com/).
+2. Open the cloned folder project with [VS Code](https://code.visualstudio.com/). If you have docker or docker desktop, just run `code .`.
 3. When prompted, reopen in the devcontainer. VS Code will automatically build and start the development environment with all dependencies installed.
 4. Update the code and configuration files as needed for your plugin.
 5. Follow the instructions in the matterbridge [README-DEV](https://github.com/Luligu/matterbridge/blob/dev/README-DEV.md) and comments in module.ts to implement your plugin logic.
