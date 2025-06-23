@@ -35,7 +35,7 @@ If you like this project and find it useful, please consider giving it a star on
 ## Getting Started
 
 1. Create a repository from this template using the [template feature of GitHub](https://docs.github.com/en/repositories/creating-and-managing-repositories/creating-a-repository-from-a-template).
-2. Open the cloned folder project with [VS Code](https://code.visualstudio.com/). If you have docker or docker desktop, just run `code .`.
+2. Clone it locally and open the cloned folder project with [VS Code](https://code.visualstudio.com/). If you have docker or docker desktop, just run `code .`.
 3. When prompted, reopen in the devcontainer. VS Code will automatically build and start the development environment with all dependencies installed.
 4. Update the code and configuration files as needed for your plugin.
 5. Follow the instructions in the matterbridge [README-DEV](https://github.com/Luligu/matterbridge/blob/dev/README-DEV.md) and comments in module.ts to implement your plugin logic.
