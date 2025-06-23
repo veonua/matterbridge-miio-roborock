@@ -30,7 +30,7 @@ If you like this project and find it useful, please consider giving it a star on
 - The dev branch of Matterbridge is already build and installed into the Dev Container and linked to the plugin.
 - The project has an already configured Jest / Vitest test unit (with 100% coverage) that you can expand while you add your own plugin logic.
 - It has a workflow configured to run on push and pull request that build, lint and test the plugin on node 20, 22 and 24 with ubuntu, macOS and windows.
-- It also has a workflow configured to publish on npm. Add your NPM_TOKEN to the repository.
+- It also has a workflow configured to publish on npm. Add your NPM_TOKEN to the repository secrets.
 
 ## Getting Started
 
@@ -49,6 +49,7 @@ If you like this project and find it useful, please consider giving it a star on
 - You can run, build, and test your plugin directly inside the container.
 - To open a terminal in the devcontainer, use the VS Code terminal after the container starts.
 - All commands (npm, tsc, matterbridge etc.) will run inside the container environment.
+- All the source files are on host.
 - Since the dev container doesn't have network host and IPV6, is not possible to pair matterbridge from the Devcontainer but you can add your plugin to matterbridge and test it inside the devcontainer.
 
 ## Documentation
