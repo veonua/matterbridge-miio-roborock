@@ -93,8 +93,7 @@
     "vitest": "^3.2.4"
   },
   "dependencies": {
-    "miio-api": "^0.4.1",
-    "multicast-dns": "^7.2.5",
+    "miio": "^0.15.6",
     "node-ansi-logger": "^3.0.1",
     "node-persist-manager": "^2.0.0"
   }

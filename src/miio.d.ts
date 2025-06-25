@@ -1,0 +1,198 @@
+declare module 'miio' {
+  interface DeviceOptions {
+    address: string;
+    token: string;
+  }
+
+  export interface VacuumState {
+    batteryLevel: number;
+    charging: boolean;
+    cleaning: boolean;
+    fanSpeed: number;
+  }
+
+  export interface CleaningHistory {
+    count: number;
+    days: Date[];
+  }
+
+  export interface DayHistory {
+    day: Date;
+    history: Array<{
+      start: Date;
+      end: Date;
+      duration: number;
+      area: number;
+      complete: boolean;
+    }>;
+  }
+
+  export interface DeviceRegistration {
+    id: number;
+    address: string;
+    port: number;
+    token: string | { type: 'Buffer'; data: number[] };
+    autoToken: boolean;
+
+    connect(): Promise<MiioDevice>;
+  }
+
+  interface Browser extends NodeJS.EventEmitter {
+    on(event: 'available', listener: (reg: DeviceRegistration) => void): this;
+    on(event: 'unavailable', listener: (reg: DeviceRegistration) => void): this;
+  }
+
+  export interface MiioDevice {
+    id: number;
+    model: string;
+    address: string;
+    port: number;
+    token: string;
+    /**
+     * Destroy the device connection
+     */
+    destroy(): void;
+
+    /**
+     * Get current cleaning status
+     *
+     * @returns Promise that resolves to boolean indicating if cleaning is active
+     */
+    cleaning(): Promise<boolean>;
+
+    /**
+     * Get current device state
+     *
+     * @returns Promise that resolves to device state object
+     */
+    state(): Promise<VacuumState>;
+
+    /**
+     * Start cleaning
+     */
+    start(): Promise<void>;
+
+    /**
+     * Stop cleaning
+     */
+    stop(): Promise<void>;
+
+    /**
+     * Return to charging dock
+     */
+    charge(): Promise<void>;
+
+    /**
+     * Get battery level
+     *
+     * @returns Promise that resolves to battery percentage
+     */
+    batteryLevel(): Promise<number>;
+
+    /**
+     * Get/Set fan speed
+     *
+     * @param speed - Optional speed to set
+     * @returns Promise that resolves to current fan speed
+     */
+    fanSpeed(speed?: number): Promise<number>;
+
+    /**
+     * Find/locate the device (plays sound or flashes light)
+     *
+     * @returns Promise that resolves to null
+     */
+    find(): Promise<null>;
+
+    /**
+     * Pause the current cleaning session
+     */
+    pause(): Promise<any>;
+
+    /**
+     * Activate cleaning (start cleaning)
+     */
+    activateCleaning(): Promise<any>;
+
+    /**
+     * Deactivate cleaning (stop cleaning)
+     */
+    deactivateCleaning(): Promise<any>;
+
+    /**
+     * Activate charging (return to dock and charge)
+     */
+    activateCharging(): Promise<any>;
+
+    /**
+     * Start spot cleaning
+     */
+    activateSpotClean(): Promise<any>;
+
+    /**
+     * Change fan speed
+     *
+     * @param speed - Fan speed value (usually 38, 60, or 77)
+     */
+    changeFanSpeed(speed: number): Promise<any>;
+
+    /**
+     * Get cleaning history
+     *
+     * @returns Promise that resolves to cleaning history data
+     */
+    getHistory(): Promise<CleaningHistory>;
+
+    /**
+     * Get history for a specific day
+     *
+     * @param day - Date or timestamp for the day
+     * @returns Promise that resolves to day history data
+     */
+    getHistoryForDay(day: Date | number): Promise<DayHistory>;
+
+    /**
+     * Load multiple properties from the device
+     *
+     * @param props - Array of property names to load
+     * @returns Promise that resolves to property values
+     */
+    loadProperties(props: string[]): Promise<Record<string, any>>;
+  }
+
+  export interface MiioDevices {
+    [key: string]: any;
+  }
+
+  /**
+   * Connect to a miio device
+   *
+   * @param options - Connection options including address and token
+   * @returns Promise that resolves to a Device instance
+   */
+  export function device(options: DeviceOptions): Promise<MiioDevice>;
+
+  /**
+   * Get multiple devices
+   *
+   * @param options - Options for getting devices, e.g., cache time
+   * @param options.cacheTime
+   * @returns Promise that resolves to an object containing multiple devices
+   */
+  export function devices(options: { cacheTime: number }): Promise<MiioDevices>;
+
+  /**
+   * Browse for miio devices on the local network
+   *
+   * @param options - Browse options including cacheTime
+   * @param options.cacheTime
+   * @returns Browser instance for listening to device availability events
+   */
+  export function browse(options: { cacheTime?: number }): Browser;
+
+  export default {
+    device,
+    devices,
+    browse,
+  };
+}

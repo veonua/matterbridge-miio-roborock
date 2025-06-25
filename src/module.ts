@@ -1,10 +1,7 @@
 import { Matterbridge, MatterbridgeDynamicPlatform, PlatformConfig, RoboticVacuumCleaner } from 'matterbridge';
 import { RvcRunMode, RvcCleanMode, ServiceArea, RvcOperationalState } from 'matterbridge/matter/clusters';
 import { AnsiLogger, LogLevel } from 'matterbridge/logger';
-import * as miio from 'miio-api';
-
-import { RoborockClient } from './roborock.js';
-import { IFanPower } from './types.js';
+import * as miio from 'miio';
 
 /**
  MDNS discovery example for Roborock S5 vacuum cleaner.
@@ -104,7 +101,6 @@ export default function initializePlugin(matterbridge: Matterbridge, log: AnsiLo
 // Here we define the TemplatePlatform class, which extends the MatterbridgeDynamicPlatform.
 // If you want to create an Accessory platform plugin, you should extend the MatterbridgeAccessoryPlatform class instead.
 export class TemplatePlatform extends MatterbridgeDynamicPlatform {
-  private roborock?: RoborockClient;
   constructor(matterbridge: Matterbridge, log: AnsiLogger, config: PlatformConfig) {
     // Always call super(matterbridge, log, config)
     super(matterbridge, log, config);
@@ -167,20 +163,11 @@ export class TemplatePlatform extends MatterbridgeDynamicPlatform {
   private async discoverDevices() {
     this.log.info('Discovering devices...');
 
-    let info = await RoborockClient.discover(this.log, 5000);
-    if (!info) {
-      this.log.warn('No Roborock devices found via mDNS');
-      // return;
-      info = {
-        host: '192.168.0.143',
-        serialNumber: '260426251',
-        model: 'Roborock S5',
-      };
-      this.log.warn(`Using fallback device info: ${JSON.stringify(info)}`);
-    }
-    const { host, serialNumber, model } = info;
-    this.log.info(`Discovered ${model} (${serialNumber}) at ${host}`);
-    this.roborock = new RoborockClient(this.log, host, Number(serialNumber), '7934776451524e4839584f77617a4566');
+    const browser = miio.browse({
+      cacheTime: 300, // 5 minutes. Default is 1800 seconds (30 minutes)
+    });
+
+    const devices: Record<string, miio.MiioDevice> = {};
 
     const runModes: RvcRunMode.ModeOption[] = [
       { label: 'Charge', mode: 1, modeTags: [{ value: RvcRunMode.ModeTag.Idle }] },
@@ -230,90 +217,75 @@ export class TemplatePlatform extends MatterbridgeDynamicPlatform {
       },
     ];
 
-    const operationalState = RvcOperationalState.OperationalState.Charging;
+    browser.on('available', async (reg) => {
+      // let roborock: miio.MiioDevice;
+      // if (!reg.token) {
+      const roborock = await miio.device({
+          address: reg.address,
+          token: '7934776451524e4839584f77617a4566', // id 260426251
+        });
+      // } else {
+      //  roborock = await reg.connect();
+      // }
 
-    const vacuum = new RoboticVacuumCleaner(
-      model,
-      serialNumber,
-      1,
-      runModes,
-      103,
-      cleanModes,
-      3, // balanced
-      null,
-      operationalState,
-      undefined,
-      serviceAreas,
-    )
-      .addCommandHandler('changeToMode', async (data) => {
-        const mode = (data.request as any).newMode;
-        if (typeof mode === 'number') {
-          const device = await miio.device({ address: '192.168.0.143', token: '7934776451524e4839584f77617a4566' });
+      devices[reg.id] = roborock;
 
-          this.log.info(`Connected to ${JSON.stringify(device)}`);
+      const status = await roborock.state();
 
-          // this.log.info(`Vacuum info: ${JSON.stringify(info1)}`);
+      this.log.info(`Discovered Roborock vacuum: ${roborock.model} with ID ${reg.id} ${JSON.stringify(status)}`);
 
-          const info2 = await device.call<string[], [string]>('get_status', []);
+      const vacuum = new RoboticVacuumCleaner(
+        roborock.model || 'Roborock S5',
+        String(reg.id), // Convert number to string
+        1,
+        runModes,
+        status.fanSpeed,
+        cleanModes,
+        3, // balanced
+        null,
+        status.charging
+          ? RvcOperationalState.OperationalState.Charging
+          : status.cleaning
+            ? RvcOperationalState.OperationalState.Running
+            : RvcOperationalState.OperationalState.Paused,
+        undefined,
+        serviceAreas,
+      )
+        .addCommandHandler('changeToMode', async (data) => {
+          const device: miio.MiioDevice = roborock;
 
-          this.log.info(`Vacuum status: ${JSON.stringify(info2)}`);
-
-          const info1 = await device.call<string[], []>('find_me', []);
-
-          this.log.info(`Vacuum changeToMode called with mode: ${mode}`);
-          switch (mode) {
-            case 1:
-              await this.roborock?.dock().catch((err) => {
-                this.log.error(`Failed to dock vacuum: ${err.message}`);
-              });
-              break;
-            case 2:
-              await this.roborock?.startCleaning().catch((err) => {
-                this.log.error(`Failed to start cleaning: ${err.message}`);
-              });
-              break;
-            case 3:
-              await this.roborock?.pauseCleaning();
-              break;
-            case 4:
-              await this.roborock?.stopCleaning();
-              break;
-            default:
-              await this.roborock?.setMode(mode as IFanPower).catch((err) => {
-                this.log.error(`Failed to set vacuum mode: ${err.message}`);
-              });
-              break;
+          const mode = (data.request as any).newMode;
+          if (typeof mode === 'number') {
+            switch (mode) {
+              case 1:
+                await device.activateCharging();
+                break;
+              case 2:
+                await device.activateCleaning();
+                break;
+              case 3:
+                await device.pause();
+                break;
+              case 4:
+                await device.deactivateCleaning();
+                break;
+              default:
+                await device.changeFanSpeed(mode);
+                break;
+            }
           }
-        }
-        this.log.info(`Vacuum changeToMode called with: ${JSON.stringify(data.request)}`);
-      })
-      // .addCommandHandler('startCleaning', async (data) => {
-      //   const area = (data.request as any).area;
-      //   if (area && area.areaId) {
-      //     await this.roborock?.startCleaningArea(area.areaId);
-      //   } else {
-      //     await this.roborock?.startCleaning();
-      //   }
-      //   this.log.info(`Vacuum startCleaning command received with area: ${JSON.stringify(area)}`);
-      // })
-      .addCommandHandler('pause', async () => {
-        await this.roborock?.pauseCleaning();
-        this.log.info('Vacuum pause command received');
-      })
-      .addCommandHandler('resume', async () => {
-        await this.roborock?.resumeCleaning();
-        this.log.info('Vacuum resume command received');
-      })
-      .addCommandHandler('goHome', async () => {
-        await this.roborock?.dock();
-        this.log.info('Vacuum goHome command received');
-      });
+          // this.log.info(`Vacuum changeToMode called with: ${JSON.stringify(data.request)}`);
+        })
+        .addCommandHandler('pause', async () => {
+          await roborock.pause();
+          this.log.info('Vacuum pause command received');
+        })
+        .addCommandHandler('goHome', async () => {
+          await roborock.activateCharging();
+          this.log.info('Vacuum goHome command received');
+        });
 
-    // .addCommandHandler('locate', async () => {
-    //   await this.roborock?.locate();
-    //   this.log.info('Vacuum locate command received');
-    // });
-
-    await this.registerDevice(vacuum);
+      await this.registerDevice(vacuum);
+    });
   }
 }
