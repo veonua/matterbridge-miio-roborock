@@ -221,9 +221,9 @@ export class TemplatePlatform extends MatterbridgeDynamicPlatform {
       // let roborock: miio.MiioDevice;
       // if (!reg.token) {
       const roborock = await miio.device({
-          address: reg.address,
-          token: '7934776451524e4839584f77617a4566', // id 260426251
-        });
+        address: reg.address,
+        token: '7934776451524e4839584f77617a4566', // id 260426251
+      });
       // } else {
       //  roborock = await reg.connect();
       // }
@@ -251,6 +251,10 @@ export class TemplatePlatform extends MatterbridgeDynamicPlatform {
         undefined,
         serviceAreas,
       )
+        .addCommandHandler('identify', async () => {
+          this.log.info(`Vacuum identify command received for device ID: ${reg.id}`);
+          await roborock.find();
+        })
         .addCommandHandler('changeToMode', async (data) => {
           const device: miio.MiioDevice = roborock;
 
