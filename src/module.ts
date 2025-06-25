@@ -180,8 +180,8 @@ export class TemplatePlatform extends MatterbridgeDynamicPlatform {
       { label: 'Gentle', mode: 101, modeTags: [{ value: RvcCleanMode.ModeTag.Vacuum }, { value: RvcCleanMode.ModeTag.Mop }] },
       { label: 'Silent', mode: 102, modeTags: [{ value: RvcCleanMode.ModeTag.Vacuum }, { value: RvcCleanMode.ModeTag.Quiet }] },
       { label: 'Balanced', mode: 103, modeTags: [{ value: RvcCleanMode.ModeTag.Vacuum }, { value: RvcCleanMode.ModeTag.Day }] },
-      { label: 'Turbo', mode: 104, modeTags: [{ value: RvcCleanMode.ModeTag.Vacuum }] },
-      { label: 'Max', mode: 105, modeTags: [{ value: RvcCleanMode.ModeTag.Vacuum }] },
+      { label: 'Turbo', mode: 104, modeTags: [{ value: RvcCleanMode.ModeTag.Vacuum }, { value: RvcCleanMode.ModeTag.DeepClean }] },
+      { label: 'Max', mode: 105, modeTags: [{ value: RvcCleanMode.ModeTag.Vacuum }, { value: RvcCleanMode.ModeTag.Max }] },
     ];
 
     const serviceAreas: ServiceArea.Area[] = [
