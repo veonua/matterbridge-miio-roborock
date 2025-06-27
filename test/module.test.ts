@@ -38,9 +38,7 @@ const mockConfig = {
   unregisterOnShutdown: false,
 } as PlatformConfig;
 
-const loggerLogSpy = jest
-  .spyOn(AnsiLogger.prototype, 'log')
-  .mockImplementation((level: string, message: string, ...parameters: any[]) => {});
+const loggerLogSpy = jest.spyOn(AnsiLogger.prototype, 'log').mockImplementation((level: string, message: string, ...parameters: any[]) => {});
 
 describe('Matterbridge Plugin Template', () => {
   let instance: TemplatePlatform;

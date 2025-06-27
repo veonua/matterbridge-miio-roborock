@@ -29,7 +29,10 @@ nodemon.json
 prettier.config.*
 TODO.md
 tsconfig.*
+vite.config.*
 *.backup
+*.heapsnapshot
+*.heapprofile
 *.tsbuildinfo
 *.tgz
 *.log
