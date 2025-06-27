@@ -4,88 +4,6 @@ import { AnsiLogger, LogLevel } from 'matterbridge/logger';
 import * as miio from 'miio';
 
 /**
- MDNS discovery example for Roborock S5 vacuum cleaner.
- {
-    "mdnsScanData": {
-        "serviceName": "roborock-vacuum-s5_miio260426251._miio._udp.local",
-        "name": "roborock-vacuum-s5_miio260426251",
-        "type": "miio",
-        "protocol": "udp",
-        "data": [
-            "path=/mydevice"
-        ],
-        "txt": {
-            "path": "/mydevice"
-        }
-    }
-}
- 
- ***
- 
- {
-    "fan_power": 102,
-    "reddit": "veonua",
-    "segments": {
-        "bedroom": {
-            "aliases": [
-                "master bedroom",
-                "left room"
-            ],
-            "segments": [
-                18
-            ]
-        },
-        "corridor": {
-            "aliases": [
-                "dressing room"
-            ],
-            "segments": [
-                17
-            ]
-        },
-        "entryway": {
-            "aliases": [
-                "entrance",
-                "hall",
-                "hallway"
-            ],
-            "fan_power": 103,
-            "segments": [
-                20
-            ]
-        },
-        "kitchen": {
-            "aliases": [
-                "cookery"
-            ],
-            "fan_power": 103,
-            "segments": [
-                19
-            ]
-        },
-        "living room": {
-            "aliases": [
-                "lounge"
-            ],
-            "segments": [
-                21
-            ]
-        },
-        "second bedroom": {
-            "aliases": [
-                "guest bedroom",
-                "right room"
-            ],
-            "segments": [
-                16
-            ]
-        }
-    },
-    "token": "7934776451524e4839584f77617a4566"
-}
- */
-
-/**
  * This is the standard interface for Matterbridge plugins.
  * Each plugin should export a default function that follows this signature.
  *
@@ -182,32 +100,32 @@ export class TemplatePlatform extends MatterbridgeDynamicPlatform {
 
     const serviceAreas: ServiceArea.Area[] = [
       {
-        areaId: 1,
+        areaId: 19,
         mapId: null,
         areaInfo: { locationInfo: { locationName: 'Kitchen', floorNumber: 1, areaType: null }, landmarkInfo: null },
       },
       {
-        areaId: 2,
+        areaId: 21,
         mapId: null,
         areaInfo: { locationInfo: { locationName: 'Living Room', floorNumber: 1, areaType: null }, landmarkInfo: null },
       },
       {
-        areaId: 3,
+        areaId: 18,
         mapId: null,
         areaInfo: { locationInfo: { locationName: 'Master Bedroom', floorNumber: 1, areaType: null }, landmarkInfo: null },
       },
       {
-        areaId: 4,
+        areaId: 16,
         mapId: null,
         areaInfo: { locationInfo: { locationName: 'Second Bedroom', floorNumber: 1, areaType: null }, landmarkInfo: null },
       },
       {
-        areaId: 5,
+        areaId: 17,
         mapId: null,
-        areaInfo: { locationInfo: { locationName: 'Dressing', floorNumber: 1, areaType: null }, landmarkInfo: null },
+        areaInfo: { locationInfo: { locationName: 'Dressing room', floorNumber: 1, areaType: null }, landmarkInfo: null },
       },
       {
-        areaId: 6,
+        areaId: 20,
         mapId: null,
         areaInfo: { locationInfo: { locationName: 'Entryway', floorNumber: 1, areaType: null }, landmarkInfo: null },
       },
