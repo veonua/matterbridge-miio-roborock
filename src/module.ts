@@ -19,12 +19,19 @@ export default function initializePlugin(matterbridge: Matterbridge, log: AnsiLo
 // Here we define the TemplatePlatform class, which extends the MatterbridgeDynamicPlatform.
 // If you want to create an Accessory platform plugin, you should extend the MatterbridgeAccessoryPlatform class instead.
 export class TemplatePlatform extends MatterbridgeDynamicPlatform {
+  private token: string;
+
   constructor(matterbridge: Matterbridge, log: AnsiLogger, config: PlatformConfig) {
     // Always call super(matterbridge, log, config)
     super(matterbridge, log, config);
 
+    this.token = '7934776451524e4839584f77617a4566'; // config.token ?? 
     // Verify that Matterbridge is the correct version
-    if (this.verifyMatterbridgeVersion === undefined || typeof this.verifyMatterbridgeVersion !== 'function' || !this.verifyMatterbridgeVersion('3.0.7')) {
+    if (
+      this.verifyMatterbridgeVersion === undefined ||
+      typeof this.verifyMatterbridgeVersion !== 'function' ||
+      !this.verifyMatterbridgeVersion('3.0.7')
+    ) {
       throw new Error(
         `This plugin requires Matterbridge version >= "3.0.7". Please update Matterbridge from ${this.matterbridge.matterbridgeVersion} to the latest version in the frontend."`,
       );
@@ -136,7 +143,7 @@ export class TemplatePlatform extends MatterbridgeDynamicPlatform {
       // if (!reg.token) {
       const roborock = await miio.device({
         address: reg.address,
-        token: '7934776451524e4839584f77617a4566', // id 260426251
+        token: this.token, // id 260426251
       });
       // } else {
       //  roborock = await reg.connect();
@@ -156,14 +163,16 @@ export class TemplatePlatform extends MatterbridgeDynamicPlatform {
         status.fanSpeed,
         cleanModes,
         3, // balanced
-        null,
+        null, 
         status.charging
           ? RvcOperationalState.OperationalState.Charging
           : status.cleaning
             ? RvcOperationalState.OperationalState.Running
             : RvcOperationalState.OperationalState.Paused,
-        undefined,
-        serviceAreas,
+        undefined, // default operational states
+        serviceAreas, // service areas
+        [], // selected areas
+        16, // current area ID
       )
         .addCommandHandler('identify', async () => {
           this.log.info(`Vacuum identify command received for device ID: ${reg.id}`);
