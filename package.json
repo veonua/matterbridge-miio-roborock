@@ -1,6 +1,6 @@
 {
   "name": "matterbridge-miio-roborock",
-  "version": "1.0.3",
+  "version": "1.0.8",
   "description": "Roborock Matterbridge Plugin",
   "author": "https://github.com/veonua",
   "homepage": "https://github.com/veonua/matterbridge-plugin-template/blob/main/README.md",
@@ -83,6 +83,7 @@
     "install:jest": "npm install --save-dev --save-exact jest ts-jest @types/jest @jest/globals eslint-plugin-jest",
     "install:vitest": "npm install --save-dev --save-exact vitest @vitest/coverage-v8 @vitest/eslint-plugin",
     "dev:link": "npm link matterbridge",
+    "matterbridge:which": "which matterbridge",
     "matterbridge:add": "matterbridge -add .",
     "matterbridge:remove": "matterbridge -remove .",
     "matterbridge:enable": "matterbridge -enable .",
@@ -90,7 +91,6 @@
     "matterbridge:list": "matterbridge -list"
   },
   "dependencies": {
-    "matterbridge": "^3.1.0",
     "miio": "^0.15.6",
     "node-ansi-logger": "3.0.1",
     "node-persist-manager": "2.0.0"

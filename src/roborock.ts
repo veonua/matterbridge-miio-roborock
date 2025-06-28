@@ -18,41 +18,59 @@ export async function discoverDevices(platform: TemplatePlatform): Promise<void>
   const devices: Record<string, miio.MiioDevice> = {};
 
   browser.on('available', async (reg) => {
-    let roborock: miio.MiioDevice;
-    if (!reg.token) {
+    let token_str: string;
+    if (reg.token) {
+      token_str = typeof reg.token === 'string' ? reg.token : Buffer.from(reg.token.data).toString('hex');
+    } else {
       if (!token) {
         log.error(`Device with ID ${reg.id} does not have a token and no token is provided in the configuration.`);
         return;
       }
       log.info(`Connecting to device with ID ${reg.id} using provided token.`);
-      roborock = await miio.device({ address: reg.address, token });
-    } else {
-      roborock = await reg.connect();
+      token_str = token; // Use the provided token
     }
+
+    const roborock = await miio.device({ address: reg.address, token: token_str });
 
     devices[reg.id] = roborock;
 
     const status = await roborock.state();
     log.info(`Discovered Roborock vacuum: ${roborock.model} with ID ${reg.id} ${JSON.stringify(status)}`);
 
+    /**
+     * @param {string} name - The name of the robotic vacuum cleaner.
+     * @param {string} serial - The serial number of the robotic vacuum cleaner.
+     * @param {number} [currentRunMode] - The current run mode of the robotic vacuum cleaner. Defaults to 1 (Idle).
+     * @param {RvcRunMode.ModeOption[]} [supportedRunModes] - The supported run modes for the robotic vacuum cleaner. Defaults to a predefined set of modes.
+     * @param {number} [currentCleanMode] - The current clean mode of the robotic vacuum cleaner. Defaults to 1 (Vacuum).
+     * @param {RvcCleanMode.ModeOption[]} [supportedCleanModes] - The supported clean modes for the robotic vacuum cleaner. Defaults to a predefined set of modes.
+     * @param {number | null} [currentPhase] - The current phase of the robotic vacuum cleaner. Defaults to null.
+     * @param {string[] | null} [phaseList] - The list of phases for the robotic vacuum cleaner. Defaults to null.
+     * @param {RvcOperationalState.OperationalState} [operationalState] - The current operational state of the robotic vacuum cleaner. Defaults to Docked.
+     * @param {RvcOperationalState.OperationalStateStruct[]} [operationalStateList] - The list of operational states for the robotic vacuum cleaner. Defaults to a predefined set of states.
+     * @param {ServiceArea.Area[]} [supportedAreas] - The supported areas for the robotic vacuum cleaner. Defaults to a predefined set of areas.
+     * @param {number[]} [selectedAreas] - The selected areas for the robotic vacuum cleaner. Defaults to an empty array (all areas allowed).
+     * @param {number} [currentArea] - The current area of the robotic vacuum cleaner. Defaults to 1 (Living).
+     */
+
     const vacuum = new RoboticVacuumCleaner(
-      roborock.model || 'Roborock S5',
-      String(reg.id),
-      1,
-      runModes,
-      status.fanSpeed,
-      cleanModes,
-      3,
-      null,
-      status.charging
+      roborock.model || 'Roborock S5', // name
+      String(reg.id), // serial
+      1, // currentRunMode
+      runModes, // supportedRunModes
+      status.fanSpeed, // currentCleanMode
+      cleanModes, // supportedCleanModes
+      3, // currentPhase
+      null, // phaseList
+      status.charging // operationalState
         ? RvcOperationalState.OperationalState.Charging
         : status.cleaning
           ? RvcOperationalState.OperationalState.Running
           : RvcOperationalState.OperationalState.Paused,
-      undefined,
-      serviceAreas,
-      [],
-      16,
+      undefined, // operationalStateList
+      serviceAreas, // supportedAreas
+      [], // selectedAreas
+      16, // currentArea
     )
       .addCommandHandler('identify', async () => {
         log.info(`Vacuum identify command received for device ID: ${reg.id}`);

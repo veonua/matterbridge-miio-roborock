@@ -87,21 +87,6 @@ declare module 'miio' {
     call(method: string, args?: unknown[], options?: { refresh?: string[]; refreshDelay?: number }): Promise<unknown>;
 
     /**
-     * Start cleaning
-     */
-    start(): Promise<void>;
-
-    /**
-     * Stop cleaning
-     */
-    stop(): Promise<void>;
-
-    /**
-     * Return to charging dock
-     */
-    charge(): Promise<void>;
-
-    /**
      * Get battery level
      *
      * @returns Promise that resolves to battery percentage
@@ -153,7 +138,7 @@ declare module 'miio' {
      *
      * @param speed - Fan speed value (usually 38, 60, or 77)
      */
-    changeFanSpeed(speed: number): Promise<any>;
+    changeFanSpeed(speed: number): Promise<null>;
 
     /**
      * Get cleaning history
