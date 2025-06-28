@@ -26,7 +26,14 @@ export class TemplatePlatform extends MatterbridgeDynamicPlatform {
     // Always call super(matterbridge, log, config)
     super(matterbridge, log, config);
 
-    this.token = '7934776451524e4839584f77617a4566'; // config.token ??
+    this.token = (config.token as string) ?? process.env.ROBOROCK_TOKEN;
+
+    if (!this.token) {
+      this.log.error('Missing Miio token!');
+      this.log.error(' - Platform Config Props: token');
+      this.log.error(' - Environment Variables: ROBOROCK_TOKEN');
+    }
+
     // Verify that Matterbridge is the correct version
     if (this.verifyMatterbridgeVersion === undefined || typeof this.verifyMatterbridgeVersion !== 'function' || !this.verifyMatterbridgeVersion('3.1.0')) {
       throw new Error(
@@ -139,15 +146,20 @@ export class TemplatePlatform extends MatterbridgeDynamicPlatform {
     ];
 
     browser.on('available', async (reg) => {
-      // let roborock: miio.MiioDevice;
-      // if (!reg.token) {
-      const roborock = await miio.device({
-        address: reg.address,
-        token: this.token, // id 260426251
-      });
-      // } else {
-      //  roborock = await reg.connect();
-      // }
+      let roborock: miio.MiioDevice;
+      if (!reg.token) {
+        if (!this.token) {
+          this.log.error(`Device with ID ${reg.id} does not have a token and no token is provided in the configuration.`);
+          return;
+        }
+        this.log.info(`Connecting to device with ID ${reg.id} using provided token.`);
+        roborock = await miio.device({
+          address: reg.address,
+          token: this.token, // id 260426251
+        });
+      } else {
+        roborock = await reg.connect();
+      }
 
       devices[reg.id] = roborock;
 
@@ -181,6 +193,7 @@ export class TemplatePlatform extends MatterbridgeDynamicPlatform {
         .addCommandHandler('changeToMode', async (data) => {
           const device: miio.MiioDevice = roborock;
 
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           const mode = (data.request as any).newMode;
           if (typeof mode === 'number') {
             switch (mode) {
@@ -201,7 +214,6 @@ export class TemplatePlatform extends MatterbridgeDynamicPlatform {
                 break;
             }
           }
-          // this.log.info(`Vacuum changeToMode called with: ${JSON.stringify(data.request)}`);
         })
         .addCommandHandler('pause', async () => {
           await roborock.pause();
@@ -216,7 +228,6 @@ export class TemplatePlatform extends MatterbridgeDynamicPlatform {
             this.log.error(`Vacuum goHome failed: ${String(err)}`);
             throw err;
           }
-
         });
 
       await this.registerDevice(vacuum);
