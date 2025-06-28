@@ -28,9 +28,9 @@ export class TemplatePlatform extends MatterbridgeDynamicPlatform {
 
     this.token = '7934776451524e4839584f77617a4566'; // config.token ??
     // Verify that Matterbridge is the correct version
-    if (this.verifyMatterbridgeVersion === undefined || typeof this.verifyMatterbridgeVersion !== 'function' || !this.verifyMatterbridgeVersion('3.0.7')) {
+    if (this.verifyMatterbridgeVersion === undefined || typeof this.verifyMatterbridgeVersion !== 'function' || !this.verifyMatterbridgeVersion('3.1.0')) {
       throw new Error(
-        `This plugin requires Matterbridge version >= "3.0.7". Please update Matterbridge from ${this.matterbridge.matterbridgeVersion} to the latest version in the frontend."`,
+        `This plugin requires Matterbridge version >= "3.1.0". Please update Matterbridge from ${this.matterbridge.matterbridgeVersion} to the latest version in the frontend."`,
       );
     }
 
@@ -208,8 +208,13 @@ export class TemplatePlatform extends MatterbridgeDynamicPlatform {
           this.log.info('Vacuum pause command received');
         })
         .addCommandHandler('goHome', async () => {
-          await roborock.activateCharging();
           this.log.info('Vacuum goHome command received');
+
+          await roborock.call('app_charge', [], {
+            refresh: [ 'state' ],
+            refreshDelay: 1000
+          });
+          
         });
 
       await this.registerDevice(vacuum);
