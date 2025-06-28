@@ -46,8 +46,7 @@ declare module 'miio' {
   }
 
   interface Browser extends NodeJS.EventEmitter {
-    on(event: 'available', listener: (reg: DeviceRegistration) => void): this;
-    on(event: 'unavailable', listener: (reg: DeviceRegistration) => void): this;
+    on(event: 'available' | 'unavailable', listener: (reg: DeviceRegistration) => void): this;
   }
 
   export interface MiioDevice {
