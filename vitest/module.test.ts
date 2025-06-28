@@ -4,6 +4,10 @@ import { Matterbridge, MatterbridgeEndpoint, PlatformConfig } from 'matterbridge
 
 import { TemplatePlatform } from '../src/module.ts';
 
+vi.mock('../src/roborock.ts', () => ({
+  discoverDevices: vi.fn().mockResolvedValue(undefined),
+}));
+
 const mockLog = {
   fatal: vi.fn((message: string, ...parameters: any[]) => {}),
   error: vi.fn((message: string, ...parameters: any[]) => {}),
@@ -77,6 +81,16 @@ describe('Matterbridge Plugin Template', () => {
   });
 
   it('should call the command handlers', async () => {
+    const mockDevice = {
+      uniqueId: '1',
+      hasClusterServer: vi.fn().mockReturnValue(true),
+      async executeCommandHandler(command: string) {
+        mockLog.info(`Command ${command} called on cluster undefined`);
+      },
+    } as unknown as MatterbridgeEndpoint;
+
+    vi.spyOn(instance, 'getDevices').mockReturnValue([mockDevice]);
+
     for (const device of instance.getDevices()) {
       if (device.hasClusterServer('onOff')) {
         await device.executeCommandHandler('on');
@@ -88,6 +102,9 @@ describe('Matterbridge Plugin Template', () => {
   });
 
   it('should configure', async () => {
+    const mockDevice = { uniqueId: '42' } as unknown as MatterbridgeEndpoint;
+    vi.spyOn(instance, 'getDevices').mockReturnValue([mockDevice]);
+
     await instance.onConfigure();
     expect(mockLog.info).toHaveBeenCalledWith('onConfigure called');
     expect(mockLog.info).toHaveBeenCalledWith(expect.stringContaining('Configuring device:'));

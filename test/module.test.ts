@@ -45,12 +45,10 @@ describe('Matterbridge Plugin Template', () => {
 
   beforeAll(async () => {
     mockMatterbridge.matterbridgeVersion = '3.1.0';
-    instance = (await import('../src/module.ts')).default(
-      mockMatterbridge,
-      mockLog,
-      mockConfig,
-    ) as TemplatePlatform;
-    jest.spyOn(instance as any, 'discoverDevices').mockResolvedValue();
+    jest.unstable_mockModule('../src/roborock.ts', () => ({
+      discoverDevices: jest.fn().mockResolvedValue(undefined),
+    }));
+    instance = (await import('../src/module.ts')).default(mockMatterbridge, mockLog, mockConfig) as TemplatePlatform;
   });
 
   beforeEach(() => {
