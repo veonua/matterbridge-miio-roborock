@@ -122,7 +122,7 @@ export interface IErrorState extends IDeviceState {
 
 export interface IMiResponse {
   id: number;
-  result: [any];
+  result: [unknown];
   error?: {
     code: number;
     message: string;
@@ -132,7 +132,7 @@ export interface IMiResponse {
 export interface IMiCommand {
   // id: number;
   method: string;
-  params?: any[];
+  params?: unknown[];
 }
 
 export interface ISegment {

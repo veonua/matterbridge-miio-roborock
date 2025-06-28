@@ -80,9 +80,11 @@ declare module 'miio' {
      * @param method - The method name to call
      * @param args - Arguments to pass to the method
      * @param options - Additional options for the call
+     * @param options.refresh - Properties to refresh after the call
+     * @param options.refreshDelay - Delay in milliseconds before refreshing
      * @returns Promise that resolves to the method result
      */
-    call(method: string, args?: any[], options?: { refresh?: string[]; refreshDelay?: number }): Promise<any>;
+    call(method: string, args?: unknown[], options?: { refresh?: string[]; refreshDelay?: number }): Promise<unknown>;
 
     /**
      * Start cleaning
@@ -184,26 +186,26 @@ declare module 'miio' {
   /**
    * Connect to a miio device
    *
-   * @param options - Connection options including address and token
-   * @returns Promise that resolves to a Device instance
+   * @param {DeviceOptions} options - Connection options including address and token
+   * @returns {Promise<MiioDevice>} Promise that resolves to a Device instance
    */
   export function device(options: DeviceOptions): Promise<MiioDevice>;
 
   /**
    * Get multiple devices
    *
-   * @param options - Options for getting devices, e.g., cache time
-   * @param options.cacheTime
-   * @returns Promise that resolves to an object containing multiple devices
+   * @param {{ cacheTime: number }} options - Options for getting devices, e.g., cache time
+   * @param {number} options.cacheTime - Cache time in seconds
+   * @returns {Promise<MiioDevices>} Promise that resolves to an object containing multiple devices
    */
   export function devices(options: { cacheTime: number }): Promise<MiioDevices>;
 
   /**
    * Browse for miio devices on the local network
    *
-   * @param options - Browse options including cacheTime
-   * @param options.cacheTime
-   * @returns Browser instance for listening to device availability events
+   * @param {{ cacheTime?: number }} options - Browse options including cacheTime
+   * @param {number} [options.cacheTime] - Cache time in seconds
+   * @returns {Browser} Browser instance for listening to device availability events
    */
   export function browse(options: { cacheTime?: number }): Browser;
 
