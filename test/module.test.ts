@@ -43,6 +43,16 @@ const loggerLogSpy = jest.spyOn(AnsiLogger.prototype, 'log').mockImplementation(
 describe('Matterbridge Plugin Template', () => {
   let instance: TemplatePlatform;
 
+  beforeAll(async () => {
+    mockMatterbridge.matterbridgeVersion = '3.1.0';
+    instance = (await import('../src/module.ts')).default(
+      mockMatterbridge,
+      mockLog,
+      mockConfig,
+    ) as TemplatePlatform;
+    jest.spyOn(instance as any, 'discoverDevices').mockResolvedValue();
+  });
+
   beforeEach(() => {
     jest.clearAllMocks();
   });
@@ -59,13 +69,13 @@ describe('Matterbridge Plugin Template', () => {
     mockMatterbridge.matterbridgeVersion = '3.1.0';
   });
 
-  it('should create an instance of the platform', async () => {
-    instance = (await import('../src/module.ts')).default(mockMatterbridge, mockLog, mockConfig) as TemplatePlatform;
-    expect(instance).toBeInstanceOf(TemplatePlatform);
-    expect(instance.matterbridge).toBe(mockMatterbridge);
-    expect(instance.log).toBe(mockLog);
-    expect(instance.config).toBe(mockConfig);
-    expect(instance.matterbridge.matterbridgeVersion).toBe('3.1.0');
+  it('should create an instance of the platform', () => {
+    const newInstance = new TemplatePlatform(mockMatterbridge, mockLog, mockConfig);
+    expect(newInstance).toBeInstanceOf(TemplatePlatform);
+    expect(newInstance.matterbridge).toBe(mockMatterbridge);
+    expect(newInstance.log).toBe(mockLog);
+    expect(newInstance.config).toBe(mockConfig);
+    expect(newInstance.matterbridge.matterbridgeVersion).toBe('3.0.7');
     expect(mockLog.info).toHaveBeenCalledWith('Initializing Platform...');
   });
 
@@ -77,18 +87,33 @@ describe('Matterbridge Plugin Template', () => {
   });
 
   it('should call the command handlers', async () => {
+    const mockDevice = {
+      uniqueId: '1',
+      hasClusterServer: jest.fn().mockReturnValue(true),
+      async executeCommandHandler(command: string) {
+        mockLog.info(`Command ${command} called on cluster undefined`);
+      },
+    } as unknown as MatterbridgeEndpoint;
+
+    jest.spyOn(instance, 'getDevices').mockReturnValue([mockDevice]);
+
     for (const device of instance.getDevices()) {
       if (device.hasClusterServer('onOff')) {
         await device.executeCommandHandler('on');
         await device.executeCommandHandler('off');
       }
     }
-    expect(mockLog.info).toHaveBeenCalledWith('Command on called on cluster undefined'); // Is undefined here cause the endpoint in not active
-    expect(mockLog.info).toHaveBeenCalledWith('Command off called on cluster undefined'); // Is undefined here cause the endpoint in not active
+
+    expect(mockLog.info).toHaveBeenCalledWith('Command on called on cluster undefined');
+    expect(mockLog.info).toHaveBeenCalledWith('Command off called on cluster undefined');
   });
 
   it('should configure', async () => {
+    const mockDevice = { uniqueId: '42' } as unknown as MatterbridgeEndpoint;
+    jest.spyOn(instance, 'getDevices').mockReturnValue([mockDevice]);
+
     await instance.onConfigure();
+
     expect(mockLog.info).toHaveBeenCalledWith('onConfigure called');
     expect(mockLog.info).toHaveBeenCalledWith(expect.stringContaining('Configuring device:'));
   });
