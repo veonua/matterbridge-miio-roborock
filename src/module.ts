@@ -230,6 +230,22 @@ export class TemplatePlatform extends MatterbridgeDynamicPlatform {
           }
         });
 
+      // Start cleaning specific rooms defined in ServiceArea cluster
+      vacuum.addCommandHandler('selectAreas', async (data) => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const areas: number[] | undefined = (data.request as any).newAreas;
+        if (Array.isArray(areas) && areas.length > 0) {
+          try {
+            this.log.info(`Vacuum room cleaning request: ${areas.join(', ')}`);
+            await roborock.call('app_segment_clean', areas);
+            await vacuum.updateAttribute(ServiceArea.Cluster.id, 'selectedAreas', areas, this.log);
+          } catch (err) {
+            this.log.error(`Vacuum selectAreas failed: ${String(err)}`);
+            throw err;
+          }
+        }
+      });
+
       await this.registerDevice(vacuum);
 
       // Periodically fetch status from the device and update attributes
