@@ -4,6 +4,10 @@ import { Matterbridge, MatterbridgeEndpoint, PlatformConfig } from 'matterbridge
 
 import { TemplatePlatform } from '../src/module.ts';
 
+vi.mock('../src/roborock.ts', () => ({
+  discoverDevices: vi.fn().mockResolvedValue(undefined),
+}));
+
 const mockLog = {
   fatal: vi.fn((message: string, ...parameters: any[]) => {}),
   error: vi.fn((message: string, ...parameters: any[]) => {}),
@@ -54,9 +58,9 @@ describe('Matterbridge Plugin Template', () => {
   it('should throw an error if matterbridge is not the required version', async () => {
     mockMatterbridge.matterbridgeVersion = '2.0.0'; // Simulate an older version
     expect(() => new TemplatePlatform(mockMatterbridge, mockLog, mockConfig)).toThrow(
-      'This plugin requires Matterbridge version >= "3.0.7". Please update Matterbridge from 2.0.0 to the latest version in the frontend.',
+      'This plugin requires Matterbridge version >= "3.1.0". Please update Matterbridge from 2.0.0 to the latest version in the frontend.',
     );
-    mockMatterbridge.matterbridgeVersion = '3.0.7';
+    mockMatterbridge.matterbridgeVersion = '3.1.0';
   });
 
   it('should create an instance of the platform', async () => {
@@ -65,7 +69,7 @@ describe('Matterbridge Plugin Template', () => {
     expect(instance.matterbridge).toBe(mockMatterbridge);
     expect(instance.log).toBe(mockLog);
     expect(instance.config).toBe(mockConfig);
-    expect(instance.matterbridge.matterbridgeVersion).toBe('3.0.7');
+    expect(instance.matterbridge.matterbridgeVersion).toBe('3.1.0');
     expect(mockLog.info).toHaveBeenCalledWith('Initializing Platform...');
   });
 
@@ -77,6 +81,16 @@ describe('Matterbridge Plugin Template', () => {
   });
 
   it('should call the command handlers', async () => {
+    const mockDevice = {
+      uniqueId: '1',
+      hasClusterServer: vi.fn().mockReturnValue(true),
+      async executeCommandHandler(command: string) {
+        mockLog.info(`Command ${command} called on cluster undefined`);
+      },
+    } as unknown as MatterbridgeEndpoint;
+
+    vi.spyOn(instance, 'getDevices').mockReturnValue([mockDevice]);
+
     for (const device of instance.getDevices()) {
       if (device.hasClusterServer('onOff')) {
         await device.executeCommandHandler('on');
@@ -88,6 +102,9 @@ describe('Matterbridge Plugin Template', () => {
   });
 
   it('should configure', async () => {
+    const mockDevice = { uniqueId: '42' } as unknown as MatterbridgeEndpoint;
+    vi.spyOn(instance, 'getDevices').mockReturnValue([mockDevice]);
+
     await instance.onConfigure();
     expect(mockLog.info).toHaveBeenCalledWith('onConfigure called');
     expect(mockLog.info).toHaveBeenCalledWith(expect.stringContaining('Configuring device:'));

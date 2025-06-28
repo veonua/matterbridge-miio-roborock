@@ -1,0 +1,39 @@
+{
+  "title": "matterbridge-miio-roborock",
+  "description": "matterbridge-miio-roborock",
+  "type": "object",
+  "required": [],
+  "properties": {
+    "name": {
+      "description": "Plugin Name",
+      "type": "string",
+      "readOnly": true,
+      "ui:widget": "hidden"
+    },
+    "type": {
+      "description": "Plugin Type",
+      "type": "string",
+      "readOnly": true,
+      "ui:widget": "hidden"
+    },
+    "token": {
+      "description": "Token",
+      "type": "string"
+    },
+    "refreshInterval": {
+      "description": "Sensor Refresh Interval (seconds)",
+      "type": "number",
+      "default": 120
+    },
+    "debug": {
+      "description": "Enable the debug for the plugin (development only)",
+      "type": "boolean",
+      "default": false
+    },
+    "unregisterOnShutdown": {
+      "description": "Unregister all devices on shutdown (development only)",
+      "type": "boolean",
+      "default": false
+    }
+  }
+}

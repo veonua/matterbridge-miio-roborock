@@ -5,19 +5,15 @@
 [![Docker Version](https://img.shields.io/docker/v/luligu/matterbridge?label=docker%20version&sort=semver)](https://hub.docker.com/r/luligu/matterbridge)
 [![Docker Pulls](https://img.shields.io/docker/pulls/luligu/matterbridge.svg)](https://hub.docker.com/r/luligu/matterbridge)
 ![Node.js CI](https://github.com/Luligu/matterbridge-plugin-template/actions/workflows/build-matterbridge-plugin.yml/badge.svg)
-![Coverage](https://img.shields.io/badge/Jest%20coverage-100%25-brightgreen)
+![CodeQL](https://github.com/Luligu/matterbridge-plugin-template/actions/workflows/codeql.yml/badge.svg)
+[![codecov](https://codecov.io/gh/Luligu/matterbridge-plugin-template/branch/main/graph/badge.svg)](https://codecov.io/gh/Luligu/matterbridge-plugin-template)
 
-[![power by](https://img.shields.io/badge/powered%20by-matter--history-blue)](https://www.npmjs.com/package/matter-history)
-[![power by](https://img.shields.io/badge/powered%20by-node--ansi--logger-blue)](https://www.npmjs.com/package/node-ansi-logger)
-[![power by](https://img.shields.io/badge/powered%20by-node--persist--manager-blue)](https://www.npmjs.com/package/node-persist-manager)
+[![powered by](https://img.shields.io/badge/powered%20by-matterbridge-blue)](https://www.npmjs.com/package/matterbridge)
+[![powered by](https://img.shields.io/badge/powered%20by-matter--history-blue)](https://www.npmjs.com/package/matter-history)
+[![powered by](https://img.shields.io/badge/powered%20by-node--ansi--logger-blue)](https://www.npmjs.com/package/node-ansi-logger)
+[![powered by](https://img.shields.io/badge/powered%20by-node--persist--manager-blue)](https://www.npmjs.com/package/node-persist-manager)
 
-This repository provides a default template for developing Matterbridge plugins.
-
-If you like this project and find it useful, please consider giving it a star on GitHub at [Matterbridge Plugin Template](https://github.com/Luligu/matterbridge-plugin-template) and sponsoring it.
-
-<a href="https://www.buymeacoffee.com/luligugithub">
-  <img src="bmc-button.svg" alt="Buy me a coffee" width="120">
-</a>
+This template now includes an example of how to register a virtual robotic vacuum cleaner. The vacuum exposes clusters for run mode, clean mode and operational state and logs simple messages when commands like `changeToMode`, `pause`, `resume` or `goHome` are received. Supported run and clean modes are modelled after the Roborock S5. The example also defines service areas for **Kitchen**, **Living Room**, **Master Bedroom**, **Second Bedroom**, **Dressing** and **Entryway**. Check `src/roborock.ts` for the implementation details.
 
 ## Features
 
@@ -28,15 +24,15 @@ If you like this project and find it useful, please consider giving it a star on
 - The dev branch of Matterbridge is already build and installed into the Dev Container and linked to the plugin.
 - The project has an already configured Jest / Vitest test unit (with 100% coverage) that you can expand while you add your own plugin logic.
 - It has a workflow configured to run on push and pull request that build, lint and test the plugin on node 20, 22 and 24 with ubuntu, macOS and windows.
-- It also has a workflow configured to publish on npm. Add your NPM_TOKEN to the repository.
+- It also has a workflow configured to publish on npm. Add your NPM_TOKEN to the repository secrets.
 
 ## Getting Started
 
-1. Clone this repository.
-2. Open the cloned folder project with [VS Code](https://code.visualstudio.com/). If you have docker or docker desktop, just run `code .`.
+1. Create a repository from this template using the [template feature of GitHub](https://docs.github.com/en/repositories/creating-and-managing-repositories/creating-a-repository-from-a-template).
+2. Clone it locally and open the cloned folder project with [VS Code](https://code.visualstudio.com/). If you have docker or docker desktop, just run `code .`.
 3. When prompted, reopen in the devcontainer. VS Code will automatically build and start the development environment with all dependencies installed.
 4. Update the code and configuration files as needed for your plugin.
-5. Follow the instructions in the matterbridge [README-DEV](https://github.com/Luligu/matterbridge/blob/dev/README-DEV.md) and comments in module.ts to implement your plugin logic.
+5. Follow the instructions in the matterbridge [README-DEV](https://github.com/Luligu/matterbridge/blob/dev/README-DEV.md) and comments in platform.ts to implement your plugin logic.
 
 ## Using the Devcontainer
 
@@ -47,11 +43,8 @@ If you like this project and find it useful, please consider giving it a star on
 - You can run, build, and test your plugin directly inside the container.
 - To open a terminal in the devcontainer, use the VS Code terminal after the container starts.
 - All commands (npm, tsc, matterbridge etc.) will run inside the container environment.
+- All the source files are on host.
 - Since the dev container doesn't have network host and IPV6, is not possible to pair matterbridge from the Devcontainer but you can add your plugin to matterbridge and test it inside the devcontainer.
-
-## Example: Virtual Robot Vacuum
-
-This template now includes an example of how to register a virtual robotic vacuum cleaner. The vacuum exposes clusters for run mode, clean mode and operational state and logs simple messages when commands like `changeToMode`, `pause`, `resume` or `goHome` are received. Supported run and clean modes are modelled after the Roborock S5. The example also defines service areas for **Kitchen**, **Living Room**, **Master Bedroom**, **Second Bedroom**, **Dressing** and **Entryway**. Check `src/module.ts` for the implementation details.
 
 ## Documentation
 
