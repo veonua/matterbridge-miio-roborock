@@ -25,13 +25,9 @@ export class TemplatePlatform extends MatterbridgeDynamicPlatform {
     // Always call super(matterbridge, log, config)
     super(matterbridge, log, config);
 
-    this.token = '7934776451524e4839584f77617a4566'; // config.token ?? 
+    this.token = '7934776451524e4839584f77617a4566'; // config.token ??
     // Verify that Matterbridge is the correct version
-    if (
-      this.verifyMatterbridgeVersion === undefined ||
-      typeof this.verifyMatterbridgeVersion !== 'function' ||
-      !this.verifyMatterbridgeVersion('3.0.7')
-    ) {
+    if (this.verifyMatterbridgeVersion === undefined || typeof this.verifyMatterbridgeVersion !== 'function' || !this.verifyMatterbridgeVersion('3.0.7')) {
       throw new Error(
         `This plugin requires Matterbridge version >= "3.0.7". Please update Matterbridge from ${this.matterbridge.matterbridgeVersion} to the latest version in the frontend."`,
       );
@@ -163,7 +159,7 @@ export class TemplatePlatform extends MatterbridgeDynamicPlatform {
         status.fanSpeed,
         cleanModes,
         3, // balanced
-        null, 
+        null,
         status.charging
           ? RvcOperationalState.OperationalState.Charging
           : status.cleaning
