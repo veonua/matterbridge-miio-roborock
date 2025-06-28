@@ -210,11 +210,13 @@ export class TemplatePlatform extends MatterbridgeDynamicPlatform {
         .addCommandHandler('goHome', async () => {
           this.log.info('Vacuum goHome command received');
 
-          await roborock.call('app_charge', [], {
-            refresh: [ 'state' ],
-            refreshDelay: 1000
-          });
-          
+          try {
+            await roborock.activateCharging();
+          } catch (err) {
+            this.log.error(`Vacuum goHome failed: ${String(err)}`);
+            throw err;
+          }
+
         });
 
       await this.registerDevice(vacuum);

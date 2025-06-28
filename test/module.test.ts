@@ -75,7 +75,7 @@ describe('Matterbridge Plugin Template', () => {
     expect(newInstance.matterbridge).toBe(mockMatterbridge);
     expect(newInstance.log).toBe(mockLog);
     expect(newInstance.config).toBe(mockConfig);
-    expect(newInstance.matterbridge.matterbridgeVersion).toBe('3.0.7');
+    expect(newInstance.matterbridge.matterbridgeVersion).toBe('3.1.0');
     expect(mockLog.info).toHaveBeenCalledWith('Initializing Platform...');
   });
 
