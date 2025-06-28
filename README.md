@@ -13,7 +13,7 @@
 [![powered by](https://img.shields.io/badge/powered%20by-node--ansi--logger-blue)](https://www.npmjs.com/package/node-ansi-logger)
 [![powered by](https://img.shields.io/badge/powered%20by-node--persist--manager-blue)](https://www.npmjs.com/package/node-persist-manager)
 
-This template now includes an example of how to register a virtual robotic vacuum cleaner. The vacuum exposes clusters for run mode, clean mode and operational state and logs simple messages when commands like `changeToMode`, `pause`, `resume` or `goHome` are received. Supported run and clean modes are modelled after the Roborock S5. The example also defines service areas for **Kitchen**, **Living Room**, **Master Bedroom**, **Second Bedroom**, **Dressing** and **Entryway**. Check `src/module.ts` for the implementation details.
+This template now includes an example of how to register a virtual robotic vacuum cleaner. The vacuum exposes clusters for run mode, clean mode and operational state and logs simple messages when commands like `changeToMode`, `pause`, `resume` or `goHome` are received. Supported run and clean modes are modelled after the Roborock S5. The example also defines service areas for **Kitchen**, **Living Room**, **Master Bedroom**, **Second Bedroom**, **Dressing** and **Entryway**. Check `src/roborock.ts` for the implementation details.
 
 ## Features
 
@@ -32,7 +32,7 @@ This template now includes an example of how to register a virtual robotic vacuu
 2. Clone it locally and open the cloned folder project with [VS Code](https://code.visualstudio.com/). If you have docker or docker desktop, just run `code .`.
 3. When prompted, reopen in the devcontainer. VS Code will automatically build and start the development environment with all dependencies installed.
 4. Update the code and configuration files as needed for your plugin.
-5. Follow the instructions in the matterbridge [README-DEV](https://github.com/Luligu/matterbridge/blob/dev/README-DEV.md) and comments in module.ts to implement your plugin logic.
+5. Follow the instructions in the matterbridge [README-DEV](https://github.com/Luligu/matterbridge/blob/dev/README-DEV.md) and comments in platform.ts to implement your plugin logic.
 
 ## Using the Devcontainer
 
