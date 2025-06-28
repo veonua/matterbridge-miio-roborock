@@ -150,6 +150,11 @@ declare module 'miio' {
     activateCleaning(): Promise<null>;
 
     /**
+     * Pause cleaning (stop cleaning temporarily)
+     */
+    pause(): Promise<null>;
+
+    /**
      * Deactivate cleaning (stop cleaning)
      */
     deactivateCleaning(): Promise<null>;
@@ -170,6 +175,11 @@ declare module 'miio' {
      * @param speed - Fan speed value (usually 38, 60, or 77)
      */
     changeFanSpeed(speed: number): Promise<null>;
+
+    /**
+     * Activate the find function, will make the device give off a sound.
+     */
+    find(): Promise<null>;
 
     /**
      * Get cleaning history
