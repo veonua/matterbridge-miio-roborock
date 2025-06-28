@@ -107,27 +107,27 @@ declare module 'miio' {
     /**
      * Pause the current cleaning session
      */
-    pause(): Promise<any>;
+    pause(): Promise<null>;
 
     /**
      * Activate cleaning (start cleaning)
      */
-    activateCleaning(): Promise<any>;
+    activateCleaning(): Promise<null>;
 
     /**
      * Deactivate cleaning (stop cleaning)
      */
-    deactivateCleaning(): Promise<any>;
+    deactivateCleaning(): Promise<null>;
 
     /**
      * Activate charging (return to dock and charge)
      */
-    activateCharging(): Promise<any>;
+    activateCharging(): Promise<null>;
 
     /**
      * Start spot cleaning
      */
-    activateSpotClean(): Promise<any>;
+    activateSpotClean(): Promise<null>;
 
     /**
      * Change fan speed
