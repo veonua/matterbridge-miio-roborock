@@ -49,6 +49,51 @@ declare module 'miio' {
     on(event: 'available' | 'unavailable', listener: (reg: DeviceRegistration) => void): this;
   }
 
+  export interface IStatus {
+    battery: number;
+    clean_area: number;
+    clean_time: number;
+    dnd_enabled: 0 | 1;
+    error_code: number;
+    fan_power: IFanPower;
+    in_cleaning: 0 | 1 | 2;
+    in_returning: 0 | 1;
+    in_fresh_state: 0 | 1;
+    lab_status: 0 | 1;
+    lock_status: 0 | 1;
+    water_box_status: 0 | 1;
+    map_present: 0 | 1;
+    map_status: 0 | 1 | 2 | 3;
+    msg_seq: number;
+    msg_ver: number;
+    state: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 100;
+
+    /*
+  states = {
+            1: 'Starting',
+            2: 'Charger disconnected',
+            3: 'Idle',
+            4: 'Remote control active',
+            5: 'Cleaning',
+            6: 'Returning home',
+            7: 'Manual mode',
+            8: 'Charging',
+            9: 'Charging problem',
+            10: 'Paused',
+            11: 'Spot cleaning',
+            12: 'Error',
+            13: 'Shutting down',
+            14: 'Updating',
+            15: 'Docking',
+            16: 'Going to target',
+            17: 'Zoned cleaning',
+            18: 'Segment cleaning',
+            100: 'Charging complete',
+            101: 'Device offline',
+        }
+  */
+  }
+
   export interface MiioDevice {
     id: number;
     model: string;
@@ -87,31 +132,17 @@ declare module 'miio' {
     call(method: string, args?: unknown[], options?: { refresh?: string[]; refreshDelay?: number }): Promise<unknown>;
 
     /**
-     * Get battery level
-     *
-     * @returns Promise that resolves to battery percentage
+     * Properties available on the device
      */
-    batteryLevel(): Promise<number>;
-
-    /**
-     * Get/Set fan speed
-     *
-     * @param speed - Optional speed to set
-     * @returns Promise that resolves to current fan speed
-     */
-    fanSpeed(speed?: number): Promise<number>;
-
-    /**
-     * Find/locate the device (plays sound or flashes light)
-     *
-     * @returns Promise that resolves to null
-     */
-    find(): Promise<null>;
-
-    /**
-     * Pause the current cleaning session
-     */
-    pause(): Promise<null>;
+    batteryLevel: number;
+    cleanTime: number;
+    cleanArea: number;
+    fanSpeed: number;
+    inCleaning: boolean;
+    mainBrushWorkTime: number;
+    sideBrushWorkTime: number;
+    filterWorkTime: number;
+    sensorDirtyTime: number;
 
     /**
      * Activate cleaning (start cleaning)
