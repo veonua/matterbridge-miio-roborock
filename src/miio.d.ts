@@ -1,7 +1,14 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 declare module 'miio' {
   interface DeviceOptions {
     address: string;
     token: string;
+  }
+
+  export interface Error {
+    // {"id":"charger-offline","description":"Charger is offline"}
+    id: string;
+    description: string;
   }
 
   export interface VacuumState {
@@ -9,6 +16,7 @@ declare module 'miio' {
     charging: boolean;
     cleaning: boolean;
     fanSpeed: number;
+    error?: Error;
   }
 
   export interface CleaningHistory {
@@ -66,6 +74,16 @@ declare module 'miio' {
      * @returns Promise that resolves to device state object
      */
     state(): Promise<VacuumState>;
+
+    /**
+     * Call a device-specific method
+     *
+     * @param method - The method name to call
+     * @param args - Arguments to pass to the method
+     * @param options - Additional options for the call
+     * @returns Promise that resolves to the method result
+     */
+    call(method: string, args?: any[], options?: { refresh?: string[]; refreshDelay?: number }): Promise<any>;
 
     /**
      * Start cleaning
