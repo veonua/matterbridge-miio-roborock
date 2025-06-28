@@ -1,5 +1,5 @@
 import { Matterbridge, MatterbridgeDynamicPlatform, PlatformConfig, RoboticVacuumCleaner } from 'matterbridge';
-import { RvcRunMode, RvcCleanMode, ServiceArea, RvcOperationalState } from 'matterbridge/matter/clusters';
+import { RvcRunMode, RvcCleanMode, ServiceArea, RvcOperationalState, PowerSource } from 'matterbridge/matter/clusters';
 import { AnsiLogger, LogLevel } from 'matterbridge/logger';
 import * as miio from 'miio';
 
@@ -20,18 +20,15 @@ export default function initializePlugin(matterbridge: Matterbridge, log: AnsiLo
 // If you want to create an Accessory platform plugin, you should extend the MatterbridgeAccessoryPlatform class instead.
 export class TemplatePlatform extends MatterbridgeDynamicPlatform {
   private token: string;
+  private statusIntervals: Record<string, NodeJS.Timeout> = {};
 
   constructor(matterbridge: Matterbridge, log: AnsiLogger, config: PlatformConfig) {
     // Always call super(matterbridge, log, config)
     super(matterbridge, log, config);
 
-    this.token = '7934776451524e4839584f77617a4566'; // config.token ?? 
+    this.token = '7934776451524e4839584f77617a4566'; // config.token ??
     // Verify that Matterbridge is the correct version
-    if (
-      this.verifyMatterbridgeVersion === undefined ||
-      typeof this.verifyMatterbridgeVersion !== 'function' ||
-      !this.verifyMatterbridgeVersion('3.0.7')
-    ) {
+    if (this.verifyMatterbridgeVersion === undefined || typeof this.verifyMatterbridgeVersion !== 'function' || !this.verifyMatterbridgeVersion('3.0.7')) {
       throw new Error(
         `This plugin requires Matterbridge version >= "3.0.7". Please update Matterbridge from ${this.matterbridge.matterbridgeVersion} to the latest version in the frontend."`,
       );
@@ -78,6 +75,9 @@ export class TemplatePlatform extends MatterbridgeDynamicPlatform {
     await super.onShutdown(reason);
 
     this.log.info(`onShutdown called with reason: ${reason ?? 'none'}`);
+    // Clear all periodic status intervals
+    Object.values(this.statusIntervals).forEach(clearInterval);
+    this.statusIntervals = {};
     if (this.config.unregisterOnShutdown === true) await this.unregisterAllDevices();
   }
 
@@ -163,7 +163,7 @@ export class TemplatePlatform extends MatterbridgeDynamicPlatform {
         status.fanSpeed,
         cleanModes,
         3, // balanced
-        null, 
+        null,
         status.charging
           ? RvcOperationalState.OperationalState.Charging
           : status.cleaning
@@ -213,6 +213,37 @@ export class TemplatePlatform extends MatterbridgeDynamicPlatform {
         });
 
       await this.registerDevice(vacuum);
+
+      // Periodically fetch status from the device and update attributes
+      this.statusIntervals[reg.id] = setInterval(async () => {
+        try {
+          const current = await roborock.state();
+          this.log.info(`Status update for ${reg.id}: ${JSON.stringify(current)}`);
+
+          const opState = current.charging
+            ? RvcOperationalState.OperationalState.Charging
+            : current.cleaning
+              ? RvcOperationalState.OperationalState.Running
+              : RvcOperationalState.OperationalState.Docked;
+
+          await vacuum.updateAttribute(RvcOperationalState.Cluster.id, 'operationalState', opState, this.log);
+          await vacuum.updateAttribute(RvcRunMode.Cluster.id, 'currentMode', current.cleaning ? 2 : 1, this.log);
+          await vacuum.updateAttribute(RvcCleanMode.Cluster.id, 'currentMode', current.fanSpeed, this.log);
+          await vacuum.updateAttribute(PowerSource.Cluster.id, 'batPercentRemaining', Math.min(Math.max(current.batteryLevel * 2, 0), 200), this.log);
+          await vacuum.updateAttribute(
+            PowerSource.Cluster.id,
+            'batChargeState',
+            current.charging
+              ? PowerSource.BatChargeState.IsCharging
+              : current.batteryLevel === 100
+                ? PowerSource.BatChargeState.IsAtFullCharge
+                : PowerSource.BatChargeState.IsNotCharging,
+            this.log,
+          );
+        } catch (error) {
+          this.log.error(`Failed to fetch status for ${reg.id}: ${String(error)}`);
+        }
+      }, 60000); // every minute
     });
   }
 }
