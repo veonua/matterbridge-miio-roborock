@@ -24,11 +24,11 @@ export enum State {
 }
 
 export enum FanPower {
-  Gentle = 100,
   Silent = 101,
   Balanced = 102,
   Turbo = 103,
   Max = 104,
+  Gentle = 105,
 }
 
 export enum ErrorCode {
@@ -121,27 +121,27 @@ export const runModes: RvcRunMode.ModeOption[] = [
 export const cleanModes: RvcCleanMode.ModeOption[] = [
   {
     label: 'Gentle',
-    mode: 101,
+    mode: FanPower.Gentle,
     modeTags: [{ value: RvcCleanMode.ModeTag.Vacuum }, { value: RvcCleanMode.ModeTag.Mop }],
   },
   {
     label: 'Silent',
-    mode: 102,
+    mode: FanPower.Silent,
     modeTags: [{ value: RvcCleanMode.ModeTag.Vacuum }, { value: RvcCleanMode.ModeTag.Quiet }],
   },
   {
     label: 'Balanced',
-    mode: 103,
+    mode: FanPower.Balanced,
     modeTags: [{ value: RvcCleanMode.ModeTag.Vacuum }, { value: RvcCleanMode.ModeTag.Day }],
   },
   {
     label: 'Turbo',
-    mode: 104,
+    mode: FanPower.Turbo,
     modeTags: [{ value: RvcCleanMode.ModeTag.Vacuum }, { value: RvcCleanMode.ModeTag.DeepClean }],
   },
   {
     label: 'Max',
-    mode: 105,
+    mode: FanPower.Max,
     modeTags: [{ value: RvcCleanMode.ModeTag.Vacuum }, { value: RvcCleanMode.ModeTag.Max }],
   },
 ];

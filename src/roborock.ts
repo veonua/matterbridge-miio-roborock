@@ -32,6 +32,49 @@ export async function discoverDevices(platform: TemplatePlatform): Promise<void>
 
     const roborock = await miio.device({ address: reg.address, token: token_str });
 
+    /** 
+     * https://github.com/l-ross/xiaomi/blob/e80cd5899c723b8dc374de75d421972f677fd9d4/vacuum/WIP.md
+     * await device.call('app_get_init_status')
+[
+  {
+    local_info: {
+      name: 'custom_A.03.0005_CE',
+      bom: 'A.03.0005',
+      location: 'de',
+      language: 'en',
+      wifiplan: '',
+      timezone: 'Europe/Berlin',
+      logserver: 'awsde0.fds.api.xiaomi.com',
+      featureset: 0
+    },
+    feature_info: [
+      102, 103, 104, 105,
+      111, 112, 113, 114,
+      115, 116, 117, 118,
+      119, 122, 123, 125
+    ],
+    status_info: {
+      state: 18,
+      battery: 64,
+      clean_time: 180,
+      clean_area: 3040000,
+      error_code: 0,
+      in_cleaning: 3,
+      in_returning: 0,
+      in_fresh_state: 0,
+      lab_status: 1,
+      water_box_status: 0,
+      map_status: 3,
+      lock_status: 0
+    }
+  }
+]
+
+> await device.call('get_serial_number')
+[ { serial_number: 'R0018S91400291' } ]
+     */
+
+
     devices[reg.id] = roborock;
 
     const current = roborock.properties;
@@ -85,6 +128,8 @@ export async function discoverDevices(platform: TemplatePlatform): Promise<void>
       })
       .addCommandHandler('resume', async () => {
         log.info('Vacuum resume command received');
+        // resume_segment_clean if in segment cleaning mode
+
         await roborock.call('app_start', [], {
           refresh: ['state'],
           refreshDelay: 1000,
