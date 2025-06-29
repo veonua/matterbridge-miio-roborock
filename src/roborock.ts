@@ -78,19 +78,8 @@ export async function discoverDevices(platform: TemplatePlatform): Promise<void>
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const mode = (data.request as any).newMode as number | undefined;
         if (typeof mode === 'number') {
-          switch (mode) {
-            case 0:
-              await device.activateCharging();
-              break;
-            case 4:
-              await device.call('app_spot', [], {
-                refresh: ['state'],
-                refreshDelay: 1000,
-              });
-              break;
-            default:
-              await device.changeFanSpeed(mode);
-              break;
+          if (mode >= 100) {
+            await device.changeFanSpeed(mode);
           }
         }
       })
@@ -115,8 +104,6 @@ export async function discoverDevices(platform: TemplatePlatform): Promise<void>
             refresh: ['state'],
             refreshDelay: 1000,
           });
-
-          // await roborock.activateCharging();
         } catch (err) {
           log.error(`Vacuum goHome failed: ${String(err)}`);
           throw err;

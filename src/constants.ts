@@ -61,7 +61,6 @@ export enum ErrorCode {
   InternalError = 255, // General internal error
 }
 
-
 export const stateToOperationalStateMap: Record<string, RvcOperationalState.OperationalState> = {
   'charging': RvcOperationalState.OperationalState.Charging,
   'cleaning': RvcOperationalState.OperationalState.Running,
