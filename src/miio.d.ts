@@ -5,7 +5,43 @@ declare module 'miio' {
     token: string;
   }
 
-  export interface Error {
+  export interface ErrorProperties {
+    code: number; // Error code
+    message: string; // Error message
+  }
+
+  export interface VacuumProperties {
+    state:
+      | 'initiating'
+      | 'charger-offline'
+      | 'waiting'
+      | 'cleaning'
+      | 'returning'
+      | 'charging'
+      | 'charging-error'
+      | 'paused'
+      | 'spot-cleaning'
+      | 'error'
+      | 'shutting-down'
+      | 'updating'
+      | 'docking'
+      | 'unknown-16' // 'going-to-target'
+      | 'zone-cleaning'
+      | 'unknown-18' // 'segment-cleaning'
+      | 'full';
+    batteryLevel: number; // 0-100
+    cleanTime: number; // in minutes
+    cleanArea: number;
+    fanSpeed: number; // Fan speed values
+    in_cleaning: 0 | 1 | 2 | 3; // 0: not cleaning, 1: unk, 2: zone cleaning, 3: segment cleaning
+    mainBrushWorkTime: number;
+    sideBrushWorkTime: number;
+    filterWorkTime: number;
+    sensorDirtyTime: number;
+    error?: ErrorProperties;
+  }
+
+  export interface ErrorState {
     // {"id":"charger-offline","description":"Charger is offline"}
     id: string;
     description: string;
@@ -16,7 +52,7 @@ declare module 'miio' {
     charging: boolean;
     cleaning: boolean;
     fanSpeed: number;
-    error?: Error;
+    error?: ErrorState;
   }
 
   export interface CleaningHistory {
@@ -50,48 +86,23 @@ declare module 'miio' {
   }
 
   export interface IStatus {
-    battery: number;
+    battery: number; // 0-100
     clean_area: number;
     clean_time: number;
     dnd_enabled: 0 | 1;
-    error_code: number;
-    fan_power: IFanPower;
-    in_cleaning: 0 | 1 | 2;
+    error_code: ErrorCode;
+    fan_power: FanPower;
+    in_cleaning: 0 | 1 | 2 | 3;
     in_returning: 0 | 1;
     in_fresh_state: 0 | 1;
     lab_status: 0 | 1;
     lock_status: 0 | 1;
     water_box_status: 0 | 1;
     map_present: 0 | 1;
-    map_status: 0 | 1 | 2 | 3;
+    map_status: 0 | 1 | 2 | 3; // version of map
     msg_seq: number;
-    msg_ver: number;
-    state: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 100;
-
-    /*
-  states = {
-            1: 'Starting',
-            2: 'Charger disconnected',
-            3: 'Idle',
-            4: 'Remote control active',
-            5: 'Cleaning',
-            6: 'Returning home',
-            7: 'Manual mode',
-            8: 'Charging',
-            9: 'Charging problem',
-            10: 'Paused',
-            11: 'Spot cleaning',
-            12: 'Error',
-            13: 'Shutting down',
-            14: 'Updating',
-            15: 'Docking',
-            16: 'Going to target',
-            17: 'Zoned cleaning',
-            18: 'Segment cleaning',
-            100: 'Charging complete',
-            101: 'Device offline',
-        }
-  */
+    msg_ver: number; // 3
+    state: State;
   }
 
   export interface MiioDevice {
@@ -134,15 +145,7 @@ declare module 'miio' {
     /**
      * Properties available on the device
      */
-    batteryLevel: number;
-    cleanTime: number;
-    cleanArea: number;
-    fanSpeed: number;
-    inCleaning: boolean;
-    mainBrushWorkTime: number;
-    sideBrushWorkTime: number;
-    filterWorkTime: number;
-    sensorDirtyTime: number;
+    properties: VacuumProperties;
 
     /**
      * Activate cleaning (start cleaning)
