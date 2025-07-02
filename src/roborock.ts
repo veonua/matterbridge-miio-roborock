@@ -69,11 +69,10 @@ export async function discoverDevices(platform: TemplatePlatform): Promise<void>
     }
   }
 ]
-
+     
 > await device.call('get_serial_number')
 [ { serial_number: 'R0018S91400291' } ]
      */
-
 
     devices[reg.id] = roborock;
 
