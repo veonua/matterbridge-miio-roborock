@@ -171,7 +171,7 @@ export async function discoverDevices(platform: TemplatePlatform): Promise<void>
 
     await platform.registerDevice(vacuum);
 
-    platform.statusIntervals[reg.id] = setInterval(async () => {
+     const fetchStatus = async () => {
       try {
         const current = roborock.properties;
         log.info(`Status update for ${reg.id}: ${JSON.stringify(current)}`);
@@ -231,6 +231,9 @@ export async function discoverDevices(platform: TemplatePlatform): Promise<void>
       } catch (error) {
         log.error(`Failed to fetch status for ${reg.id}: ${String(error)}`);
       }
-    }, 60000);
+     };
+
+    platform.statusFetchers[reg.id] = fetchStatus;
+    platform.statusIntervals[reg.id] = setInterval(fetchStatus, platform.refreshInterval);
   });
 }

@@ -5,12 +5,15 @@ import { discoverDevices } from './roborock.js';
 
 export class TemplatePlatform extends MatterbridgeDynamicPlatform {
   public token: string | undefined;
+  public refreshInterval: number;
   public statusIntervals: Record<string, NodeJS.Timeout> = {};
+  public statusFetchers: Record<string, () => Promise<void>> = {};
 
   constructor(matterbridge: Matterbridge, log: AnsiLogger, config: PlatformConfig) {
     super(matterbridge, log, config);
 
     this.token = (config.token as string) ?? process.env.ROBOROCK_TOKEN;
+    this.refreshInterval = typeof config.refreshInterval === 'number' ? config.refreshInterval * 1000 : 120000;
 
     if (!this.token) {
       this.log.error('Missing Miio token!');
@@ -39,6 +42,21 @@ export class TemplatePlatform extends MatterbridgeDynamicPlatform {
     this.log.info('onConfigure called');
     for (const device of this.getDevices()) {
       this.log.info(`Configuring device: ${device.uniqueId}`);
+    }
+  }
+
+  override async onConfigChanged(config: PlatformConfig) {
+    await super.onConfigChanged(config);
+    if (typeof config.refreshInterval === 'number') {
+      this.refreshInterval = config.refreshInterval * 1000;
+      this.log.info(`Refresh interval updated to ${this.refreshInterval}ms`);
+      for (const id of Object.keys(this.statusIntervals)) {
+        clearInterval(this.statusIntervals[id]);
+        const fetcher = this.statusFetchers[id];
+        if (fetcher) {
+          this.statusIntervals[id] = setInterval(fetcher, this.refreshInterval);
+        }
+      }
     }
   }
 
