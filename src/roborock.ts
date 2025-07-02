@@ -2,7 +2,7 @@ import * as miio from 'miio';
 import { RoboticVacuumCleaner } from 'matterbridge';
 import { RvcRunMode, RvcCleanMode, ServiceArea, RvcOperationalState, PowerSource } from 'matterbridge/matter/clusters';
 
-import { runModes, cleanModes, serviceAreas } from './constants.js';
+import { runModes, cleanModes, serviceAreas, stateToOperationalStateMap, operationalErrorMap, ErrorCode } from './constants.js';
 import { TemplatePlatform } from './platform.js';
 
 /**
@@ -18,24 +18,68 @@ export async function discoverDevices(platform: TemplatePlatform): Promise<void>
   const devices: Record<string, miio.MiioDevice> = {};
 
   browser.on('available', async (reg) => {
-    let token_str: string;
-    if (reg.token) {
-      token_str = typeof reg.token === 'string' ? reg.token : Buffer.from(reg.token.data).toString('hex');
-    } else {
-      if (!token) {
-        log.error(`Device with ID ${reg.id} does not have a token and no token is provided in the configuration.`);
-        return;
-      }
-      log.info(`Connecting to device with ID ${reg.id} using provided token.`);
-      token_str = token; // Use the provided token
+    // let token_str: string;
+    // if (reg.token) {
+    //  token_str = typeof reg.token === 'string' ? reg.token : Buffer.from(reg.token.data).toString('hex');
+    // } else {
+    if (!token) {
+      log.error(`Device with ID ${reg.id} does not have a token and no token is provided in the configuration.`);
+      return;
     }
+    log.info(`Connecting to device with ID ${reg.id} using provided token.`);
+    const token_str = token; // Use the provided token
+    // }
 
     const roborock = await miio.device({ address: reg.address, token: token_str });
 
+    /** 
+     * https://github.com/l-ross/xiaomi/blob/e80cd5899c723b8dc374de75d421972f677fd9d4/vacuum/WIP.md
+     * await device.call('app_get_init_status')
+[
+  {
+    local_info: {
+      name: 'custom_A.03.0005_CE',
+      bom: 'A.03.0005',
+      location: 'de',
+      language: 'en',
+      wifiplan: '',
+      timezone: 'Europe/Berlin',
+      logserver: 'awsde0.fds.api.xiaomi.com',
+      featureset: 0
+    },
+    feature_info: [
+      102, 103, 104, 105,
+      111, 112, 113, 114,
+      115, 116, 117, 118,
+      119, 122, 123, 125
+    ],
+    status_info: {
+      state: 18,
+      battery: 64,
+      clean_time: 180,
+      clean_area: 3040000,
+      error_code: 0,
+      in_cleaning: 3,
+      in_returning: 0,
+      in_fresh_state: 0,
+      lab_status: 1,
+      water_box_status: 0,
+      map_status: 3,
+      lock_status: 0
+    }
+  }
+]
+
+> await device.call('get_serial_number')
+[ { serial_number: 'R0018S91400291' } ]
+     */
+
+
     devices[reg.id] = roborock;
 
-    const status = await roborock.state();
-    log.info(`Discovered Roborock vacuum: ${roborock.model} with ID ${reg.id} ${JSON.stringify(status)}`);
+    const current = roborock.properties;
+    const opState = stateToOperationalStateMap[current.state];
+    log.info(`Discovered Roborock vacuum: ${roborock.model} with ID ${reg.id} ${JSON.stringify(current)}`);
 
     /**
      * @param {string} name - The name of the robotic vacuum cleaner.
@@ -56,17 +100,13 @@ export async function discoverDevices(platform: TemplatePlatform): Promise<void>
     const vacuum = new RoboticVacuumCleaner(
       roborock.model || 'Roborock S5', // name
       String(reg.id), // serial
-      1, // currentRunMode
+      current.in_cleaning, // currentRunMode - Idle
       runModes, // supportedRunModes
-      status.fanSpeed, // currentCleanMode
+      current.fanSpeed, // currentCleanMode
       cleanModes, // supportedCleanModes
       3, // currentPhase
       null, // phaseList
-      status.charging // operationalState
-        ? RvcOperationalState.OperationalState.Charging
-        : status.cleaning
-          ? RvcOperationalState.OperationalState.Running
-          : RvcOperationalState.OperationalState.Paused,
+      opState, // operationalState
       undefined, // operationalStateList
       serviceAreas, // supportedAreas
       [], // selectedAreas
@@ -81,33 +121,34 @@ export async function discoverDevices(platform: TemplatePlatform): Promise<void>
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const mode = (data.request as any).newMode as number | undefined;
         if (typeof mode === 'number') {
-          switch (mode) {
-            case 1:
-              await device.activateCharging();
-              break;
-            case 2:
-              await device.activateCleaning();
-              break;
-            case 3:
-              await device.pause();
-              break;
-            case 4:
-              await device.deactivateCleaning();
-              break;
-            default:
-              await device.changeFanSpeed(mode);
-              break;
+          if (mode >= 100) {
+            await device.changeFanSpeed(mode);
           }
         }
       })
+      .addCommandHandler('resume', async () => {
+        log.info('Vacuum resume command received');
+        // resume_segment_clean if in segment cleaning mode
+
+        await roborock.call('app_start', [], {
+          refresh: ['state'],
+          refreshDelay: 1000,
+        });
+      })
       .addCommandHandler('pause', async () => {
-        await roborock.pause();
         log.info('Vacuum pause command received');
+        await roborock.call('app_pause', [], {
+          refresh: ['state'],
+          refreshDelay: 1000,
+        });
       })
       .addCommandHandler('goHome', async () => {
         log.info('Vacuum goHome command received');
         try {
-          await roborock.activateCharging();
+          await roborock.call('app_charge', [], {
+            refresh: ['state'],
+            refreshDelay: 1000,
+          });
         } catch (err) {
           log.error(`Vacuum goHome failed: ${String(err)}`);
           throw err;
@@ -133,29 +174,61 @@ export async function discoverDevices(platform: TemplatePlatform): Promise<void>
 
     platform.statusIntervals[reg.id] = setInterval(async () => {
       try {
-        const current = await roborock.state();
+        const current = roborock.properties;
         log.info(`Status update for ${reg.id}: ${JSON.stringify(current)}`);
 
-        const opState = current.charging
-          ? RvcOperationalState.OperationalState.Charging
-          : current.cleaning
-            ? RvcOperationalState.OperationalState.Running
-            : RvcOperationalState.OperationalState.Docked;
+        // Get the operational state using the mapping, defaulting to Docked if state is unknown
+        const opState = stateToOperationalStateMap[current.state];
 
         await vacuum.updateAttribute(RvcOperationalState.Cluster.id, 'operationalState', opState, log);
-        await vacuum.updateAttribute(RvcRunMode.Cluster.id, 'currentMode', current.cleaning ? 2 : 1, log);
+
+        if (current.error?.code) {
+          const errorCode: ErrorCode = current.error.code as ErrorCode;
+          const errorState: RvcOperationalState.ErrorState = operationalErrorMap[errorCode] || RvcOperationalState.ErrorState.UnableToCompleteOperation;
+
+          const errorStateStruct: RvcOperationalState.ErrorStateStruct = {
+            errorStateId: errorState,
+            errorStateLabel: errorCode.toString(),
+            errorStateDetails: current.error.message || 'Unknown error',
+          };
+
+          await vacuum.triggerEvent(
+            RvcOperationalState.Cluster.id,
+            'operationalError',
+            {
+              errorState: errorStateStruct,
+            },
+            platform.log,
+          );
+
+          vacuum.updateAttribute(RvcOperationalState.Cluster.id, 'operationalError', errorState, platform.log);
+        } else {
+          // vacuum.updateAttribute(RvcOperationalState.Cluster.id, 'operationalError', RvcOperationalState.ErrorState.NoError, platform.log);
+        }
+
+        if (current.state === 'spot-cleaning') {
+          await vacuum.updateAttribute(RvcRunMode.Cluster.id, 'currentMode', 4, log);
+        } else {
+          await vacuum.updateAttribute(RvcRunMode.Cluster.id, 'currentMode', current.in_cleaning, log);
+        }
+
         await vacuum.updateAttribute(RvcCleanMode.Cluster.id, 'currentMode', current.fanSpeed, log);
         await vacuum.updateAttribute(PowerSource.Cluster.id, 'batPercentRemaining', Math.min(Math.max(current.batteryLevel * 2, 0), 200), log);
         await vacuum.updateAttribute(
           PowerSource.Cluster.id,
           'batChargeState',
-          current.charging
+          current.state === 'charging'
             ? PowerSource.BatChargeState.IsCharging
             : current.batteryLevel === 100
               ? PowerSource.BatChargeState.IsAtFullCharge
               : PowerSource.BatChargeState.IsNotCharging,
           log,
         );
+
+        if (current.state === 'charging-error') {
+          log.warn(`Vacuum ${reg.id} is in charging error state`);
+          await vacuum.updateAttribute(PowerSource.Cluster.id, 'batChargeFault', PowerSource.BatChargeFault.Unspecified, log);
+        }
       } catch (error) {
         log.error(`Failed to fetch status for ${reg.id}: ${String(error)}`);
       }
