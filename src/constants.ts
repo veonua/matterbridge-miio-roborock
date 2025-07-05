@@ -146,53 +146,41 @@ export const cleanModes: RvcCleanMode.ModeOption[] = [
   },
 ];
 
-export const serviceAreas: ServiceArea.Area[] = [
-  {
-    areaId: 19,
-    mapId: null,
-    areaInfo: {
-      locationInfo: { locationName: 'Kitchen', floorNumber: 1, areaType: null },
-      landmarkInfo: null,
-    },
-  },
-  {
-    areaId: 21,
-    mapId: null,
-    areaInfo: {
-      locationInfo: { locationName: 'Living Room', floorNumber: 1, areaType: null },
-      landmarkInfo: null,
-    },
-  },
-  {
-    areaId: 18,
-    mapId: null,
-    areaInfo: {
-      locationInfo: { locationName: 'Master Bedroom', floorNumber: 1, areaType: null },
-      landmarkInfo: null,
-    },
-  },
-  {
-    areaId: 16,
-    mapId: null,
-    areaInfo: {
-      locationInfo: { locationName: 'Second Bedroom', floorNumber: 1, areaType: null },
-      landmarkInfo: null,
-    },
-  },
-  {
-    areaId: 17,
-    mapId: null,
-    areaInfo: {
-      locationInfo: { locationName: 'Dressing room', floorNumber: 1, areaType: null },
-      landmarkInfo: null,
-    },
-  },
-  {
-    areaId: 20,
-    mapId: null,
-    areaInfo: {
-      locationInfo: { locationName: 'Entryway', floorNumber: 1, areaType: null },
-      landmarkInfo: null,
-    },
-  },
-];
+/**
+ * Generate service areas from configuration
+ *
+ * @param {Record<string, string>} areaConfig - Area configuration from platform config
+ * @returns {ServiceArea.Area[]} Array of ServiceArea.Area objects, filtering out areas with empty names
+ */
+export function generateServiceAreas(areaConfig: Record<string, string>): ServiceArea.Area[] {
+  const areas: ServiceArea.Area[] = [];
+
+  // Handle undefined or null config
+  if (!areaConfig) {
+    return areas;
+  }
+
+  // Generate areas from 16 to 32
+  for (let areaId = 16; areaId <= 32; areaId++) {
+    const areaKey = `Area-${areaId}`;
+    const locationName = areaConfig[areaKey];
+
+    // Skip areas with empty or undefined names
+    if (locationName && locationName.trim() !== '') {
+      areas.push({
+        areaId,
+        mapId: null,
+        areaInfo: {
+          locationInfo: {
+            locationName: locationName.trim(),
+            floorNumber: 1,
+            areaType: null,
+          },
+          landmarkInfo: null,
+        },
+      });
+    }
+  }
+
+  return areas;
+}

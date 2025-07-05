@@ -1,7 +1,26 @@
 {
-  "name": "matterbridge-airthings",
+  "name": "matterbridge-miio-roborock",
   "type": "DynamicPlatform",
   "refreshInterval": 120,
   "debug": false,
-  "unregisterOnShutdown": false
+  "unregisterOnShutdown": false,
+  "areas": {
+    "Area-16": "Second Bedroom",
+    "Area-17": "Dressing room", 
+    "Area-18": "Master Bedroom",
+    "Area-19": "Kitchen",
+    "Area-20": "Entryway",
+    "Area-21": "Living Room",
+    "Area-22": "",
+    "Area-23": "",
+    "Area-24": "",
+    "Area-25": "",
+    "Area-26": "",
+    "Area-27": "",
+    "Area-28": "",
+    "Area-29": "",
+    "Area-30": "",
+    "Area-31": "",
+    "Area-32": ""
+  }
 }
