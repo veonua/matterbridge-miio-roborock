@@ -40,6 +40,18 @@ export async function discoverDevices(platform: TemplatePlatform): Promise<void>
 
     devices[reg.id] = roborock;
 
+    // Retrieve serial number from device
+    let serial = String(reg.id);
+    try {
+      const serialResult = (await roborock.call('get_serial_number')) as miio.SerialNumberResult[];
+      if (Array.isArray(serialResult) && serialResult.length > 0 && serialResult[0].serial_number) {
+        serial = serialResult[0].serial_number;
+        log.info(`Retrieved serial number for ${reg.id}: ${serial}`);
+      }
+    } catch (error) {
+      log.warn(`Failed to get serial number for ${reg.id}, falling back to ID: ${String(error)}`);
+    }
+
     // Get initial device status using app_get_init_status
     let initStatus: miio.InitStatusResponse | null = null;
     try {
@@ -78,7 +90,7 @@ export async function discoverDevices(platform: TemplatePlatform): Promise<void>
 
     const vacuum = new RoboticVacuumCleaner(
       roborock.model || 'Roborock S5', // name
-      String(reg.id), // serial
+      serial, // serial
       initStatus?.status_info?.in_cleaning ?? current.in_cleaning, // currentRunMode - use init status if available
       runModes, // supportedRunModes
       current.fanSpeed, // currentCleanMode
