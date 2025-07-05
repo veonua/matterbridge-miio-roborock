@@ -1,4 +1,5 @@
 import { RvcOperationalState, ServiceArea } from 'matterbridge/matter/clusters';
+
 import { generateServiceAreas, stateToOperationalStateMap, operationalErrorMap, ErrorCode } from '../src/constants.js';
 
 describe('constants helpers', () => {
