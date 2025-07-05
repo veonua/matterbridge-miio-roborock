@@ -118,11 +118,6 @@
           "description": "Name for area 31 (leave empty to disable)",
           "type": "string",
           "default": "Area-31"
-        },
-        "Area-32": {
-          "description": "Name for area 32 (leave empty to disable)",
-          "type": "string",
-          "default": "Area-32"
         }
       },
       "default": {
@@ -141,8 +136,7 @@
         "Area-28": "Area-28",
         "Area-29": "Area-29",
         "Area-30": "Area-30",
-        "Area-31": "Area-31",
-        "Area-32": "Area-32"
+        "Area-31": "Area-31"
       }
     }
   }

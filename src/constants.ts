@@ -160,8 +160,8 @@ export function generateServiceAreas(areaConfig: Record<string, string>): Servic
     return areas;
   }
 
-  // Generate areas from 16 to 32
-  for (let areaId = 16; areaId <= 32; areaId++) {
+  // Generate areas from 16 to 31
+  for (let areaId = 16; areaId < 32; areaId++) {
     const areaKey = `Area-${areaId}`;
     const locationName = areaConfig[areaKey];
 
