@@ -15,6 +15,7 @@ const jestConfig = {
   testPathIgnorePatterns: ['/node_modules/', '/dist/', '/vitest/'],
   coveragePathIgnorePatterns: ['/node_modules/', '/dist/', '/vitest/'],
   maxWorkers: '100%',
+  forceExit: true, // Force Jest to exit to prevent hanging on open handles from matterbridge framework
 };
 
 export default jestConfig;

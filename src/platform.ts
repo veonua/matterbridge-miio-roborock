@@ -8,6 +8,8 @@ export class TemplatePlatform extends MatterbridgeDynamicPlatform {
   public refreshInterval: number;
   public statusIntervals: Record<string, NodeJS.Timeout> = {};
   public statusFetchers: Record<string, () => Promise<void>> = {};
+  public miioDevices: Record<string, any> = {};
+  public miioBrowser: any = null;
 
   constructor(matterbridge: Matterbridge, log: AnsiLogger, config: PlatformConfig) {
     super(matterbridge, log, config);
@@ -69,6 +71,33 @@ export class TemplatePlatform extends MatterbridgeDynamicPlatform {
     this.log.info(`onShutdown called with reason: ${reason ?? 'none'}`);
     Object.values(this.statusIntervals).forEach(clearInterval);
     this.statusIntervals = {};
+    
+    // Destroy miio devices
+    for (const [id, device] of Object.entries(this.miioDevices)) {
+      try {
+        if (device && typeof device.destroy === 'function') {
+          device.destroy();
+          this.log.debug(`Destroyed miio device ${id}`);
+        }
+      } catch (error) {
+        this.log.error(`Error destroying miio device ${id}: ${String(error)}`);
+      }
+    }
+    this.miioDevices = {};
+    
+    // Destroy miio browser
+    if (this.miioBrowser) {
+      try {
+        if (typeof this.miioBrowser.destroy === 'function') {
+          this.miioBrowser.destroy();
+          this.log.debug('Destroyed miio browser');
+        }
+      } catch (error) {
+        this.log.error(`Error destroying miio browser: ${String(error)}`);
+      }
+      this.miioBrowser = null;
+    }
+    
     if (this.config.unregisterOnShutdown === true) await this.unregisterAllDevices();
   }
 }

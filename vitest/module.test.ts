@@ -51,7 +51,11 @@ describe('Matterbridge Plugin Template', () => {
     vi.clearAllMocks();
   });
 
-  afterAll(() => {
+  afterAll(async () => {
+    // Ensure proper cleanup to prevent tests from hanging
+    if (instance) {
+      await instance.onShutdown('Jest');
+    }
     vi.restoreAllMocks();
   });
 
