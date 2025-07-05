@@ -42,6 +42,10 @@ declare module 'miio' {
     status_info: InitStatusStatusInfo;
   }
 
+  export interface SerialNumberResult {
+    serial_number: string;
+  }
+
   export interface VacuumProperties {
     state:
       | 'initiating'
