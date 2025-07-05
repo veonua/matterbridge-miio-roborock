@@ -3,7 +3,7 @@
   "version": "1.2.0",
   "description": "Roborock Matterbridge Plugin",
   "author": "https://github.com/veonua",
-  "homepage": "https://github.com/veonua/matterbridge-plugin-template/blob/main/README.md",
+  "homepage": "https://github.com/veonua/matterbridge-miio-roborock/blob/main/README.md",
   "license": "Apache-2.0",
   "type": "module",
   "main": "dist/module.js",
@@ -13,15 +13,17 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/veonua/matterbridge-plugin-template.git"
+    "url": "git+https://github.com/veonua/matterbridge-miio-roborock.git"
   },
   "bugs": {
-    "url": "https://github.com/veonua/matterbridge-plugin-template/issues"
+    "url": "https://github.com/veonua/matterbridge-miio-roborock/issues"
   },
   "keywords": [
     "matterbridge",
     "plugin",
-    "template",
+    "roborock",
+    "miio",
+    "xiaomi",
     "matter.js",
     "matter-node.js",
     "matter",
@@ -84,7 +86,7 @@
     "install:vitest": "npm install --save-dev --save-exact vitest @vitest/coverage-v8 @vitest/eslint-plugin",
     "dev:link": "npm link matterbridge",
     "matterbridge:which": "which matterbridge",
-    "matterbridge:add": "matterbridge -add /home/veon/matterbridge-plugin-template/",
+    "matterbridge:add": "matterbridge -add .",
     "matterbridge:remove": "matterbridge -remove .",
     "matterbridge:enable": "matterbridge -enable .",
     "matterbridge:disable": "matterbridge -disable .",
