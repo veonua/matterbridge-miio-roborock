@@ -58,7 +58,6 @@ To use this plugin, you have to read the "token" of the xiaomi vacuum robots. He
 
 NOTE: We are not currently aware of how to retrieve the token from the Roborock App. Please, share any findings in the issue [#104](https://github.com/homebridge-xiaomi-roborock-vacuum/homebridge-xiaomi-roborock-vacuum/issues/104).
 
-
 ## Documentation
 
 Refer to the Matterbridge documentation for other guidelines.
