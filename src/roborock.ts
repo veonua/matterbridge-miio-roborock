@@ -2,7 +2,7 @@ import * as miio from 'miio';
 import { RoboticVacuumCleaner } from 'matterbridge';
 import { RvcRunMode, RvcCleanMode, ServiceArea, RvcOperationalState, PowerSource } from 'matterbridge/matter/clusters';
 
-import { runModes, cleanModes, serviceAreas, stateToOperationalStateMap, operationalErrorMap, ErrorCode } from './constants.js';
+import { runModes, cleanModes, generateServiceAreas, stateToOperationalStateMap, operationalErrorMap, ErrorCode } from './constants.js';
 import { TemplatePlatform } from './platform.js';
 
 /**
@@ -13,6 +13,12 @@ import { TemplatePlatform } from './platform.js';
 export async function discoverDevices(platform: TemplatePlatform): Promise<void> {
   const { log, token } = platform;
   log.info('Discovering devices...');
+
+  // Generate service areas from configuration
+  const areaConfig = (platform.config.areas as Record<string, string>) || {};
+  const serviceAreas = generateServiceAreas(areaConfig);
+
+  log.info(`Generated ${JSON.stringify(serviceAreas)} service areas from configuration`);
 
   const browser = miio.browse({ cacheTime: 300 });
   const devices: Record<string, miio.MiioDevice> = {};
@@ -101,7 +107,7 @@ export async function discoverDevices(platform: TemplatePlatform): Promise<void>
       undefined, // operationalStateList
       serviceAreas, // supportedAreas
       [], // selectedAreas
-      16, // currentArea
+      serviceAreas[0].areaId, // currentArea
     )
       .addCommandHandler('identify', async () => {
         log.info(`Vacuum identify command received for device ID: ${reg.id}`);
