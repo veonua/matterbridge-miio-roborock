@@ -55,8 +55,16 @@ describe('Matterbridge Plugin Template', () => {
     jest.clearAllMocks();
   });
 
-  afterAll(() => {
+  afterAll(async () => {
+    // Ensure proper cleanup to prevent Jest from hanging
+    if (instance) {
+      await instance.onShutdown('Jest');
+    }
+
+    // Clean up any global mocks and spies
+    loggerLogSpy.mockRestore();
     jest.restoreAllMocks();
+    jest.clearAllMocks();
   });
 
   it('should throw an error if matterbridge is not the required version', async () => {

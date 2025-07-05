@@ -17,6 +17,9 @@ export async function discoverDevices(platform: TemplatePlatform): Promise<void>
   const browser = miio.browse({ cacheTime: 300 });
   const devices: Record<string, miio.MiioDevice> = {};
 
+  // Store browser reference for cleanup
+  platform.miioBrowser = browser;
+
   browser.on('available', async (reg) => {
     // let token_str: string;
     // if (reg.token) {
@@ -31,6 +34,9 @@ export async function discoverDevices(platform: TemplatePlatform): Promise<void>
     // }
 
     const roborock = await miio.device({ address: reg.address, token: token_str });
+
+    // Store device reference for cleanup
+    platform.miioDevices[reg.id] = roborock;
 
     /** 
      * https://github.com/l-ross/xiaomi/blob/e80cd5899c723b8dc374de75d421972f677fd9d4/vacuum/WIP.md
@@ -171,7 +177,7 @@ export async function discoverDevices(platform: TemplatePlatform): Promise<void>
 
     await platform.registerDevice(vacuum);
 
-     const fetchStatus = async () => {
+    const fetchStatus = async () => {
       try {
         const current = roborock.properties;
         log.info(`Status update for ${reg.id}: ${JSON.stringify(current)}`);
@@ -231,7 +237,7 @@ export async function discoverDevices(platform: TemplatePlatform): Promise<void>
       } catch (error) {
         log.error(`Failed to fetch status for ${reg.id}: ${String(error)}`);
       }
-     };
+    };
 
     platform.statusFetchers[reg.id] = fetchStatus;
     platform.statusIntervals[reg.id] = setInterval(fetchStatus, platform.refreshInterval);
