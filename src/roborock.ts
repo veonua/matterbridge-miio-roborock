@@ -1,5 +1,5 @@
 import * as miio from 'miio';
-import { RoboticVacuumCleaner } from 'matterbridge';
+import { RoboticVacuumCleaner } from 'matterbridge/devices';
 import { RvcRunMode, RvcCleanMode, ServiceArea, RvcOperationalState, PowerSource } from 'matterbridge/matter/clusters';
 
 import { runModes, cleanModes, serviceAreas, stateToOperationalStateMap, operationalErrorMap, ErrorCode } from './constants.js';
