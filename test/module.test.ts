@@ -60,7 +60,7 @@ describe('Matterbridge Plugin Template', () => {
     if (instance) {
       await instance.onShutdown('Jest');
     }
-    
+
     // Clean up any global mocks and spies
     loggerLogSpy.mockRestore();
     jest.restoreAllMocks();

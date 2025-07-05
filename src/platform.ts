@@ -8,8 +8,8 @@ export class TemplatePlatform extends MatterbridgeDynamicPlatform {
   public refreshInterval: number;
   public statusIntervals: Record<string, NodeJS.Timeout> = {};
   public statusFetchers: Record<string, () => Promise<void>> = {};
-  public miioDevices: Record<string, any> = {};
-  public miioBrowser: any = null;
+  public miioDevices: Record<string, { destroy(): void }> = {};
+  public miioBrowser: NodeJS.EventEmitter | null = null;
 
   constructor(matterbridge: Matterbridge, log: AnsiLogger, config: PlatformConfig) {
     super(matterbridge, log, config);
@@ -71,7 +71,7 @@ export class TemplatePlatform extends MatterbridgeDynamicPlatform {
     this.log.info(`onShutdown called with reason: ${reason ?? 'none'}`);
     Object.values(this.statusIntervals).forEach(clearInterval);
     this.statusIntervals = {};
-    
+
     // Destroy miio devices
     for (const [id, device] of Object.entries(this.miioDevices)) {
       try {
@@ -84,20 +84,26 @@ export class TemplatePlatform extends MatterbridgeDynamicPlatform {
       }
     }
     this.miioDevices = {};
-    
+
     // Destroy miio browser
     if (this.miioBrowser) {
       try {
-        if (typeof this.miioBrowser.destroy === 'function') {
-          this.miioBrowser.destroy();
+        // Try to destroy if it has a destroy method
+        const browserWithDestroy = this.miioBrowser as { destroy?(): void };
+        if (typeof browserWithDestroy.destroy === 'function') {
+          browserWithDestroy.destroy();
           this.log.debug('Destroyed miio browser');
+        } else {
+          // For EventEmitter-based browsers, remove all listeners
+          this.miioBrowser.removeAllListeners();
+          this.log.debug('Cleaned up miio browser listeners');
         }
       } catch (error) {
         this.log.error(`Error destroying miio browser: ${String(error)}`);
       }
       this.miioBrowser = null;
     }
-    
+
     if (this.config.unregisterOnShutdown === true) await this.unregisterAllDevices();
   }
 }
