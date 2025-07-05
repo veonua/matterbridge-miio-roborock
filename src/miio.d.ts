@@ -81,7 +81,7 @@ declare module 'miio' {
     connect(): Promise<MiioDevice>;
   }
 
-  interface Browser extends NodeJS.EventEmitter {
+  export interface Browser extends NodeJS.EventEmitter {
     on(event: 'available' | 'unavailable', listener: (reg: DeviceRegistration) => void): this;
   }
 

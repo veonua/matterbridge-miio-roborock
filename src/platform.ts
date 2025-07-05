@@ -1,5 +1,6 @@
 import { Matterbridge, MatterbridgeDynamicPlatform, PlatformConfig } from 'matterbridge';
 import { AnsiLogger, LogLevel } from 'matterbridge/logger';
+import type * as miio from 'miio';
 
 import { discoverDevices } from './roborock.js';
 
@@ -9,7 +10,7 @@ export class TemplatePlatform extends MatterbridgeDynamicPlatform {
   public statusIntervals: Record<string, NodeJS.Timeout> = {};
   public statusFetchers: Record<string, () => Promise<void>> = {};
   public miioDevices: Record<string, { destroy(): void }> = {};
-  public miioBrowser: NodeJS.EventEmitter | null = null;
+  public miioBrowser: miio.Browser | null = null;
 
   constructor(matterbridge: Matterbridge, log: AnsiLogger, config: PlatformConfig) {
     super(matterbridge, log, config);
