@@ -10,6 +10,38 @@ declare module 'miio' {
     message: string; // Error message
   }
 
+  export interface InitStatusLocalInfo {
+    name: string;
+    bom: string;
+    location: string;
+    language: string;
+    wifiplan: string;
+    timezone: string;
+    logserver: string;
+    featureset: number;
+  }
+
+  export interface InitStatusStatusInfo {
+    state: number;
+    battery: number;
+    clean_time: number;
+    clean_area: number;
+    error_code: number;
+    in_cleaning: number;
+    in_returning: number;
+    in_fresh_state: number;
+    lab_status: number;
+    water_box_status: number;
+    map_status: number;
+    lock_status: number;
+  }
+
+  export interface InitStatusResponse {
+    local_info: InitStatusLocalInfo;
+    feature_info: number[];
+    status_info: InitStatusStatusInfo;
+  }
+
   export interface VacuumProperties {
     state:
       | 'initiating'

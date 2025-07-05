@@ -38,53 +38,27 @@ export async function discoverDevices(platform: TemplatePlatform): Promise<void>
     // Store device reference for cleanup
     platform.miioDevices[reg.id] = roborock;
 
-    /** 
-     * https://github.com/l-ross/xiaomi/blob/e80cd5899c723b8dc374de75d421972f677fd9d4/vacuum/WIP.md
-     * await device.call('app_get_init_status')
-[
-  {
-    local_info: {
-      name: 'custom_A.03.0005_CE',
-      bom: 'A.03.0005',
-      location: 'de',
-      language: 'en',
-      wifiplan: '',
-      timezone: 'Europe/Berlin',
-      logserver: 'awsde0.fds.api.xiaomi.com',
-      featureset: 0
-    },
-    feature_info: [
-      102, 103, 104, 105,
-      111, 112, 113, 114,
-      115, 116, 117, 118,
-      119, 122, 123, 125
-    ],
-    status_info: {
-      state: 18,
-      battery: 64,
-      clean_time: 180,
-      clean_area: 3040000,
-      error_code: 0,
-      in_cleaning: 3,
-      in_returning: 0,
-      in_fresh_state: 0,
-      lab_status: 1,
-      water_box_status: 0,
-      map_status: 3,
-      lock_status: 0
-    }
-  }
-]
-     
-> await device.call('get_serial_number')
-[ { serial_number: 'R0018S91400291' } ]
-     */
-
     devices[reg.id] = roborock;
 
+    // Get initial device status using app_get_init_status
+    let initStatus: miio.InitStatusResponse | null = null;
+    try {
+      const initResult = (await roborock.call('app_get_init_status')) as miio.InitStatusResponse[];
+      if (initResult && Array.isArray(initResult) && initResult.length > 0) {
+        initStatus = initResult[0];
+        log.info(`Retrieved init status for ${reg.id}: ${JSON.stringify(initStatus)}`);
+      }
+    } catch (error) {
+      log.warn(`Failed to get init status for ${reg.id}, falling back to properties: ${String(error)}`);
+    }
+
+    // Use init status if available, otherwise fall back to current properties
     const current = roborock.properties;
-    const opState = stateToOperationalStateMap[current.state];
-    log.info(`Discovered Roborock vacuum: ${roborock.model} with ID ${reg.id} ${JSON.stringify(current)}`);
+    const deviceState = initStatus?.status_info?.state
+      ? Object.values(stateToOperationalStateMap)[initStatus.status_info.state] || stateToOperationalStateMap[current.state]
+      : stateToOperationalStateMap[current.state];
+
+    log.info(`Discovered Roborock vacuum: ${roborock.model} with ID ${reg.id}, state: ${current.state} ${JSON.stringify(current)}`);
 
     /**
      * @param {string} name - The name of the robotic vacuum cleaner.
@@ -105,13 +79,13 @@ export async function discoverDevices(platform: TemplatePlatform): Promise<void>
     const vacuum = new RoboticVacuumCleaner(
       roborock.model || 'Roborock S5', // name
       String(reg.id), // serial
-      current.in_cleaning, // currentRunMode - Idle
+      initStatus?.status_info?.in_cleaning ?? current.in_cleaning, // currentRunMode - use init status if available
       runModes, // supportedRunModes
       current.fanSpeed, // currentCleanMode
       cleanModes, // supportedCleanModes
       3, // currentPhase
       null, // phaseList
-      opState, // operationalState
+      deviceState, // operationalState - use calculated state
       undefined, // operationalStateList
       serviceAreas, // supportedAreas
       [], // selectedAreas
