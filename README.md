@@ -43,7 +43,6 @@
 More details available here: [Discussion #264](https://github.com/Luligu/matterbridge/discussions/264)
 
 ---
-
 ### 🚧 Project Status
 
 - **Under active development**
@@ -52,29 +51,30 @@ More details available here: [Discussion #264](https://github.com/Luligu/matterb
 
 ---
 
+
 📋 **Apple Home ↔️ Roborock Clean Mode Mapping:**
 | Apple Home Mode | Roborock Fan Speed |
 |-----------------|--------------------|
-| Standard | 101 |
-| Medium | 102 |
-| Turbo | 104 |
-| Max | 105 |
+| Standard        | 101                |
+| Medium          | 102                |
+| Turbo           | 104                |
+| Max             | 105                |
 
 These values may vary depending on the model. Consult your device documentation for details.
 
 ---
-
 ### 📦 Prerequisites
 
 - A working installation of [Matterbridge](https://github.com/Luligu/matterbridge)
 - Compatible Xiaomi/Roborock vacuum model (not all models supported yet)
 
 ---
-
 ### 🧱 Built With
 
 This plugin is built on top of the Matterbridge plugin template:
 🔗 [matterbridge-plugin-template](https://github.com/Luligu/matterbridge-plugin-template)
+
+---
 
 Please be aware that this plugin is about Roborock robots that work with Xiaomi (Miio protocol).
 
