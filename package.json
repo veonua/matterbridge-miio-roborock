@@ -1,6 +1,6 @@
 {
   "name": "matterbridge-miio-roborock",
-  "version": "1.2.0",
+  "version": "1.2.2",
   "description": "Roborock Matterbridge Plugin",
   "author": "https://github.com/veonua",
   "homepage": "https://github.com/veonua/matterbridge-miio-roborock/blob/main/README.md",

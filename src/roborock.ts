@@ -18,7 +18,7 @@ export async function discoverDevices(platform: TemplatePlatform): Promise<void>
   const areaConfig = (platform.config.areas as Record<string, string>) || {};
   const serviceAreas = generateServiceAreas(areaConfig);
 
-  log.info(`Generated ${JSON.stringify(serviceAreas)} service areas from configuration`);
+  log.info(`Generated ${serviceAreas.length} service areas from configuration`);
 
   const browser = miio.browse({ cacheTime: 300 });
   const devices: Record<string, miio.MiioDevice> = {};
