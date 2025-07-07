@@ -46,7 +46,7 @@ More details available here: [Discussion #264](https://github.com/Luligu/matterb
 ### 🚧 Project Status
 
 - **Under active development**
-- Requires **`matterbridge@3.0.4`**
+- Requires **`matterbridge@3.1.2`**
 - ⚠️ **Known Issue:** Vacuum may appear as **two devices** in Apple Home
 
 ---
@@ -89,4 +89,3 @@ To use this plugin you need the vacuum's `token`. Here are some resources:
 - :de: - [Tutorial with token extractor - simon42.com](https://www.simon42.com/roborock-homekit-token-einfach/)
 
 NOTE: We are not currently aware of how to retrieve the token from the Roborock App. If you find a way please share it.
-

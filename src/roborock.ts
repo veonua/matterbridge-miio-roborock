@@ -1,5 +1,5 @@
 import * as miio from 'miio';
-import { RoboticVacuumCleaner } from 'matterbridge';
+import { RoboticVacuumCleaner } from 'matterbridge/devices';
 import { RvcRunMode, RvcCleanMode, ServiceArea, RvcOperationalState, PowerSource } from 'matterbridge/matter/clusters';
 
 import { runModes, cleanModes, generateServiceAreas, stateToOperationalStateMap, operationalErrorMap, ErrorCode } from './constants.js';
@@ -97,6 +97,7 @@ export async function discoverDevices(platform: TemplatePlatform): Promise<void>
     const vacuum = new RoboticVacuumCleaner(
       roborock.model || 'Roborock S5', // name
       serial, // serial
+      'server', // expose as server endpoint for Matterbridge 3.1.2+
       initStatus?.status_info?.in_cleaning ?? current.in_cleaning, // currentRunMode - use init status if available
       runModes, // supportedRunModes
       current.fanSpeed, // currentCleanMode
